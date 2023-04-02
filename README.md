@@ -4,5 +4,6 @@ Proiect tema 1 POO.
 
 ## Controale
 
-WASD miscare
+WASD miscare.
+
 M1 pentru a trage.
