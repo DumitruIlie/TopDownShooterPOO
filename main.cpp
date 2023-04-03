@@ -8,6 +8,7 @@
 #include<cstdlib>
 
 int WINDOWWIDTH, WINDOWHEIGHT;
+const long long bullet_time_spawn=200000000LL;
 
 template <class T>
 class vec2
@@ -506,6 +507,95 @@ void GameEntity::takeDamage(GameEntity* _bullet)
 	this->health-=bullet->getDamage();
 }*/
 
+void handleMovement(Entity& player)
+{
+    vec2f movement((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),-(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)));
+    player.setVelocity(movement.normalize()*=4);
+}
+
+void handleShooting(vector<Entity*>& bullets, long long& last_bullet, Entity& player, sf::RenderWindow& window)
+{
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-last_bullet>=bullet_time_spawn)
+    {
+        last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
+        auto bullet=new Entity(player.getCenter(),2);
+        sf::Vector2i mousePos=sf::Mouse::getPosition(window);
+        bullet->setVelocity((vec2f((float)mousePos.x,(float)mousePos.y)-player.getCenter()).normalize()*=11);
+        bullet->setColor(sf::Color(255,255,0));
+        bullets+=bullet;
+    }
+}
+
+Entity* trySpawnMonster(vec2f center, const float chancePerTick=0.01/5.6, const float radius=40)
+{
+    if((float)rand()/(float)RAND_MAX<chancePerTick)
+    {
+        vec2f pos(((float)rand()/(float)RAND_MAX)*(float)WINDOWWIDTH,((float)rand()/(float)RAND_MAX)*(float)WINDOWHEIGHT);
+        while((pos-center).lengthSquared()<radius*radius)
+            pos=vec2f(((float)rand()/(float)RAND_MAX)*(float)WINDOWWIDTH,((float)rand()/(float)RAND_MAX)*(float)WINDOWHEIGHT);
+        auto monstru=new Entity(pos,9);
+        monstru->setColor(sf::Color(255,0,0));
+        return monstru;
+    }
+    return 0;
+}
+
+bool gameLogic(Entity& player, vector<Entity*>& monstri, vector<Entity*>& bullets)
+{
+    int i, j;
+    for(i=0;i<monstri.getSize();++i)
+    {
+        if(Physics::checkIntersection(&player, monstri[i]))
+        {
+            if(player.takeDamage(5)<=0)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            monstri[i]->setVelocity((player.getCenter()-monstri[i]->getCenter()).normalize()*=2);
+        }
+
+        for(j=0;j<bullets.getSize();++j)
+        {
+            if(Physics::checkIntersection(monstri[i],bullets[j]))
+            {
+                bullets.swap(j,bullets.getSize()-1);
+                delete bullets[bullets.getSize()-1];
+                bullets.pop_back();
+                --j;
+                if(monstri[i]->takeDamage(20)<=0)
+                {
+                    monstri.swap(i,monstri.getSize()-1);
+                    delete monstri[monstri.getSize()-1];
+                    monstri.pop_back();
+                    --i;
+                    j=bullets.getSize();
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void drawBullets(vector<Entity*>& bullets, sf::RenderWindow& window)
+{
+    int i;
+    for(i=0;i<bullets.getSize();++i)
+    {
+        vec2f pos_bullet=bullets[i]->getCenter();
+        float rad=bullets[i]->getRadius();
+        if(pos_bullet.get_x()<-rad || pos_bullet.get_x()>(float)WINDOWWIDTH+rad || pos_bullet.get_y()<-rad || pos_bullet.get_y()>(float)WINDOWHEIGHT+rad)
+        {
+            bullets.swap(i, bullets.getSize()-1);
+            bullets.pop_back();
+        }
+        else
+            bullets[i]->draw(window);
+    }
+}
+
 int main()
 {
     sf::RenderWindow window;
@@ -523,13 +613,11 @@ int main()
     player.setColor(sf::Color(0, 0, 255));
     long long last_frame=std::chrono::system_clock::now().time_since_epoch().count();
     long long last_bullet=last_frame;
-    const long long bullet_time_spawn=200000000LL;
     const long long frame_time=3000000;
     vector<Entity*> monstri;
     vector<Entity*> bullets;
-    bool lost=false;
 
-    //srand(time(nullptr));
+    srand(time(nullptr));
 
     while(window.isOpen())
     {
@@ -538,18 +626,9 @@ int main()
             last_frame=std::chrono::system_clock::now().time_since_epoch().count();
 
             //Event handling:
-            vec2f movement((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),-(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)));
-            player.setVelocity(movement.normalize()*=4);
+            handleMovement(player);
 
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-last_bullet>=bullet_time_spawn)
-            {
-                last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
-                auto bullet=new Entity(player.getCenter(),2);
-                sf::Vector2i mousePos=sf::Mouse::getPosition(window);
-                bullet->setVelocity((vec2f((float)mousePos.x,(float)mousePos.y)-player.getCenter()).normalize()*=11);
-                bullet->setColor(sf::Color(255,255,0));
-                bullets+=bullet;
-            }
+            handleShooting(bullets, last_bullet, player, window);
 
             sf::Event e=sf::Event();
             while(window.pollEvent(e))
@@ -571,51 +650,9 @@ int main()
             }
 
             //Game Logic
-            if((float)rand()/(float)RAND_MAX<0.01/4/*vrem sa se spawneze un monstru la aprox 10 secunde, sunt 60 de frame-uri pe secunda => 10%/60 = 1/600*/)
-            {
-                vec2f pos(((float)rand()/(float)RAND_MAX)*(float)WINDOWWIDTH,((float)rand()/(float)RAND_MAX)*(float)WINDOWHEIGHT);
-                while((pos-player.getCenter()).lengthSquared()<1600)
-                    pos=vec2f(((float)rand()/(float)RAND_MAX)*(float)WINDOWWIDTH,((float)rand()/(float)RAND_MAX)*(float)WINDOWHEIGHT);
-                auto monstru=new Entity(pos,9);
-                monstru->setColor(sf::Color(255,0,0));
-                monstri+=monstru;
-            }
+            if(Entity* monstru=trySpawnMonster(player.getCenter())) monstri+=monstru;
 
-            for(i=0;i<monstri.getSize();++i)
-            {
-                if(Physics::checkIntersection(&player,monstri[i]))
-                {
-                    if(player.takeDamage(5)<=0){
-                        //Ai pierdut
-                        lost=true;
-                        break;
-                    }
-                }
-                else
-                {
-                    monstri[i]->setVelocity((player.getCenter()-monstri[i]->getCenter()).normalize()*=2);
-                }
-
-                for(j=0;j<bullets.getSize();++j)
-                {
-                    if(Physics::checkIntersection(monstri[i],bullets[j]))
-                    {
-                        bullets.swap(j,bullets.getSize()-1);
-                        delete bullets[bullets.getSize()-1];
-                        bullets.pop_back();
-                        --j;
-                        if(monstri[i]->takeDamage(20)<=0)
-                        {
-                            monstri.swap(i,monstri.getSize()-1);
-                            delete monstri[monstri.getSize()-1];
-                            monstri.pop_back();
-                            --i;
-                            j=bullets.getSize();
-                        }
-                    }
-                }
-            }
-            if(lost)
+            if(gameLogic(player, monstri, bullets))
             {
                 window.close();
                 break;
@@ -640,18 +677,7 @@ int main()
             {
                 monstri[i]->draw(window);
             }
-            for(i=0;i<bullets.getSize();++i)
-            {
-                vec2f pos_bullet=bullets[i]->getCenter();
-                float rad=bullets[i]->getRadius();
-                if(pos_bullet.get_x()<-rad || pos_bullet.get_x()>WINDOWWIDTH+rad || pos_bullet.get_y()<-rad || pos_bullet.get_y()>WINDOWHEIGHT+rad)
-                {
-                    bullets.swap(i, bullets.getSize()-1);
-                    bullets.pop_back();
-                }
-                else
-                    bullets[i]->draw(window);
-            }
+            drawBullets(bullets, window);
 
             window.display();
         }
