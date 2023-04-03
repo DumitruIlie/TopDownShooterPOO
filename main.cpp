@@ -537,7 +537,7 @@ Entity* trySpawnMonster(vec2f center, const float chancePerTick=0.01/5.6, const 
         monstru->setColor(sf::Color(255,0,0));
         return monstru;
     }
-    return 0;
+    return nullptr;
 }
 
 bool gameLogic(Entity& player, vector<Entity*>& monstri, vector<Entity*>& bullets)
@@ -608,7 +608,7 @@ int main()
     WINDOWWIDTH=600;
     const float dt=1/32.f;
 
-    int i, j;
+    int i;
     Entity player(vec2f(), 10);
     player.setColor(sf::Color(0, 0, 255));
     long long last_frame=std::chrono::system_clock::now().time_since_epoch().count();
