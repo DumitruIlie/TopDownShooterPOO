@@ -434,6 +434,22 @@ int main()
 			if(menu==GAMEPLAY)
 			{
 				tick(window, player, monstri, bullets, last_bullet, dt);
+                if(menu==MAINMENU && prevMenu!=MAINMENU)
+                {
+                    player.setCenter(vec2f((float)(WINDOWWIDTH>>1), (float)(WINDOWHEIGHT>>1)));
+                    for(i=0;i<(int)monstri.size();++i)
+                    {
+                        delete monstri[i];
+                        monstri[i]=nullptr;
+                    }
+                    monstri.clear();
+                    for(i=0;i<(int)bullets.size();++i)
+                    {
+                        delete bullets[i];
+                        bullets[i]=nullptr;
+                    }
+                    bullets.clear();
+                }
 				render(window, player, monstri, bullets);
 			}
 
@@ -441,23 +457,6 @@ int main()
 				buttons[menu][i]->draw(window);
 
 			window.display();
-
-            if(menu==MAINMENU && prevMenu!=MAINMENU)
-            {
-                player.setCenter(vec2f((float)(WINDOWWIDTH>>1), (float)(WINDOWHEIGHT>>1)));
-                for(i=0;i<(int)monstri.size();++i)
-                {
-                    delete monstri[i];
-                    monstri[i]=nullptr;
-                }
-                monstri.clear();
-                for(i=0;i<(int)bullets.size();++i)
-                {
-                    delete bullets[i];
-                    bullets[i]=nullptr;
-                }
-                bullets.clear();
-            }
 
 			prevMenu=menu;
         }
