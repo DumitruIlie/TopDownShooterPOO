@@ -34,7 +34,7 @@ public:
     vec2<T>& operator/=(const T& s) {if(s) {this->x/=s; this->y/=s;} else {this->x=this->y=0;} return *this;}
 
     T operator*(const vec2<T>& v) const {return this->x*v.x+this->y*v.y;}
-    T operator^(const vec2<T>& v) const {return this->x*v.y-this->x*v.y;}
+    T operator^(const vec2<T>& v) const {return this->x*v.y-this->y*v.x;}
     bool operator==(const vec2<T>& v) const {return this->x==v.x && this->y==v.y;}
     bool operator!=(const vec2<T>& v) const {return this->x!=v.x || this->y!=v.y;}
 
