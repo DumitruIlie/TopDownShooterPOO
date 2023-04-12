@@ -306,16 +306,14 @@ void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
 void render(sf::RenderWindow& window, Entity& player, std::vector<Entity*>& monstri, std::vector<Entity*>& bullets)
 {
 	int i;
-	vec2f pos_bullet;
-	float rad;
 
 	player.draw(window);
 	for(i=0;i<(int)monstri.size();++i)
 		monstri[i]->draw(window);
     for(i=0;i<(int)bullets.size();++i)
     {
-        pos_bullet=bullets[i]->getCenter();
-        rad=bullets[i]->getRadius();
+        vec2f pos_bullet=bullets[i]->getCenter();
+        float rad=bullets[i]->getRadius();
         if(pos_bullet.get_x()<-rad || pos_bullet.get_x()>(float)WINDOWWIDTH+rad || pos_bullet.get_y()<-rad || pos_bullet.get_y()>(float)WINDOWHEIGHT+rad)
         {
             std::swap(bullets[i], bullets[(int)bullets.size()-1]);
