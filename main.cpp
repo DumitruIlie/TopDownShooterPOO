@@ -6,6 +6,7 @@
 #include<cmath>
 #include<chrono>
 #include<cstdlib>
+#include<vector>
 
 int WINDOWWIDTH, WINDOWHEIGHT;
 const long long bullet_time_spawn=200000000LL;
@@ -42,194 +43,16 @@ public:
 
     [[nodiscard]] T get_x() const {return this->x;}
     [[nodiscard]] T get_y() const {return this->y;}
-    //void set_x(const T& x) {this->x=x;}
-    //void set_y(const T& y) {this->y=y;}
+    //void set_x(const T& _x) {this->x=_x;}
+    //void set_y(const T& _y) {this->y=_y;}
 
     [[nodiscard]] T lengthSquared() const {return this->x*this->x+this->y*this->y;}
     [[nodiscard]] T length() const {return sqrt(this->x*this->x+this->y*this->y);}
     vec2<T>& normalize() {return *this/=this->length();}
     //[[nodiscard]] vec2<T> normalized() const {return *this/this->length();}
 };
-//typedef vec2<int> vec2i;
-typedef vec2<float>vec2f;
-
-template<class T>
-class vector
-{
-private:
-    T* v;
-    int size;
-    int capacity;
-
-public:
-    vector() : v(nullptr), size(0), capacity(0) {}
-    vector(int size, const T& defaultValue) : v(0), size(0), capacity(0)
-    {
-        if(size>0)
-        {
-            int i;
-
-            this->size=size;
-            this->capacity=size;
-            this->v=new T[this->capacity];
-            for(i=0;i<this->capacity;++i)
-                this->v[i]=defaultValue;
-        }
-    }
-    vector(const T* v, int size) : v(0), size(0), capacity(0)
-    {
-        if(v && size>0)
-        {
-            int i;
-            this->v=new T[this->capacity=this->size=size];
-            for(i=0;i<this->capacity;++i)
-                this->v[i]=v[i];
-        }
-    }
-    vector(const vector& other) : v(0), size(other.size), capacity(other.capacity)
-    {
-        if(other.v)
-        {
-            int i;
-            this->v=new T[this->capacity];
-            for(i=0;i<this->size;++i)
-                this->v[i]=other.v[i];
-        }
-    }
-    virtual ~vector() {if(this->v) delete[] this->v;}
-
-    vector& operator=(const vector& other)
-    {
-        if(this==&other)
-            return *this;
-        if(other.v)
-        {
-            T* aux=new T[other.capacity];
-            int i;
-            for(i=0;i<other.size;++i)
-                aux[i]=other.v[i];
-            if(this->v)
-                delete[] this->v;
-            this->v=aux;
-            this->size=other.size;
-            this->capacity=other.capacity;
-        }
-        else
-        {
-            if(this->v)
-            {
-                delete[] this->v;
-                this->v=0;
-                this->capacity=this->size=0;
-            }
-        }
-        return *this;
-    }
-
-    vector& operator+=(const T& item)
-    {
-        this->push_back(std::move(item));
-        return *this;
-    }
-
-    void push_back(const T& val)
-    {
-        if(!this->v)
-        {
-            this->v=new T[this->size=this->capacity=1];
-            this->v[0]=std::move(val);
-        }
-        else
-        {
-            if(this->size==this->capacity)
-            {
-                T* aux=new T[this->capacity<<=1];
-                int i;
-                for(i=0;i<this->size;++i)
-                    aux[i]=this->v[i];
-                delete[] this->v;
-                this->v=aux;
-            }
-            this->v[this->size++]=std::move(val);
-        }
-    }
-    void pop_back()
-    {
-        if(this->v)
-        {
-            if(this->size)
-            {
-                if(this->size==1)
-                {
-                    delete[] this->v;
-                    this->v=nullptr;
-                    this->capacity=this->size=0;
-                }
-                else if(--this->size<=(this->capacity>>2))
-                {
-                    int i;
-                    T* new_v=new T[this->capacity>>=1];
-                    for(i=0;i<this->size;++i)
-                        new_v[i]=this->v[i];
-                    delete[] this->v;
-                    this->v=new_v;
-                }
-            }
-        }
-    }
-
-    [[nodiscard]] int getSize() const {return this->size;}
-    T& operator[](int idx) {if(this->v && idx<this->size && idx>-1) return this->v[idx]; throw std::exception();}
-    void swap(int i, int j) {if(i!=j && i<this->size && i>-1 && j<this->size && j>-1) {T aux(this->v[i]); this->v[i]=this->v[j]; this->v[j]=aux;}}
-
-    friend std::ostream& operator<<(std::ostream& out, const vector<T>& vect)
-    {
-        int i;
-        if(!vect.v)
-            return out<<"[]";
-        out<<'['<<*vect.v;
-        for(i=1;i<vect.size;++i)
-            out<<", "<<vect.v[i];
-        return out<<']';
-    }
-    friend std::istream& operator>>(std::istream& in, vector<T>& vect)
-    {
-        int sz=0;
-        T* aux_p;
-        vector<T> aux;
-        in>>sz;
-        if(sz>0)
-        {
-            int i;
-            aux.v=new T[aux.size=aux.capacity=sz];
-            for(i=0;i<sz;++i)
-                in>>aux.v[i];
-            aux_p=aux.v;
-            aux.v=vect.v;
-            vect.v=aux_p;
-            vect.size=vect.capacity=sz;
-        }
-        return in;
-    }
-
-    void swap(vector& other)
-    {
-        int aux;
-        T* aux_v;
-
-        aux=this->capacity;
-        this->capacity=other.capacity;
-        other.capacity=aux;
-
-        aux=this->size;
-        this->size=other.size;
-        other.size=aux;
-
-        aux_v=this->v;
-        this->v=other.v;
-        other.v=aux_v;
-    }
-};
+typedef vec2<int> vec2i;
+typedef vec2<float> vec2f;
 
 class Entity
 {
@@ -247,7 +70,7 @@ public:
     virtual ~Entity() = default;
 
     [[nodiscard]] vec2f getCenter() const {return this->center;}
-    //void setCenter(const vec2f newCenter) {center=newCenter;}
+    void setCenter(const vec2f newCenter) {center=newCenter;}
 
     [[nodiscard]] float getRadius() const {return this->radius;}
 
@@ -267,253 +90,43 @@ public:
 
 class Physics
 {
-private:
-
-
-    /*static bool getIntersection(Entity* A, Entity* B, vec2f& normal, float& penDepth)
-    {
-        if(!checkIntersection(A, B))
-            return 0;
-
-        normal=A->getCenter()-B->getCenter();
-        float len=normal.length();
-        penDepth=len-A->getRadius()-B->getRadius();
-        normal/=len;
-        return 1;
-    }*/
-
-protected:
-
 public:
     Physics() = delete;
 
     static bool checkIntersection(Entity* A, Entity* B) {return (A->getCenter()-B->getCenter()).lengthSquared()<=(A->getRadius()+B->getRadius())*(A->getRadius()+B->getRadius());}
+};
 
-    /*static void solve(Entity* A, Entity* B, int dt)
+class Button
+{
+private:
+    void (*onClick)();
+    void (*drawFnc)(Button&, bool, sf::RenderWindow&);
+
+protected:
+    vec2i topLeft, bottomRight;
+
+public:
+    Button() : onClick(nullptr), drawFnc(nullptr), topLeft(0, 0), bottomRight(0, 0) {}
+    Button(vec2i _topLeft, vec2i _bottomRight) : onClick(nullptr), drawFnc(nullptr), topLeft(_topLeft), bottomRight(_bottomRight) {}
+    Button(vec2i _topLeft, vec2i _bottomRight, void (*_onClick)(), void (*_drawFnc)(Button&, bool, sf::RenderWindow&)) : onClick(_onClick), drawFnc(_drawFnc), topLeft(_topLeft), bottomRight(_bottomRight) {}
+    Button(const Button& other) = default;
+    virtual ~Button() = default;
+    Button& operator=(const Button& other) = default;
+
+    void click(vec2i mousePos) {if(this->topLeft.get_x()<=mousePos.get_x() && mousePos.get_x()<=this->bottomRight.get_x() && this->topLeft.get_y()<=mousePos.get_y() && mousePos.get_y()<=this->bottomRight.get_y() && this->onClick) this->onClick();}
+    void draw(sf::RenderWindow& window)
     {
-        float penDepth;
-        vec2f delta;
-        getIntersection(A, B, delta, penDepth);
-        float velNormal=delta*(A->getVelocity()-B->getVelocity());
-        float j=-1/(velNormal*(A->getWeight_1()+A->getWeight_1()));
-
-        vec2f impulse=j*delta;
-        A->setVelocity(A->getVelocity()-impulse*A->getWeight_1()*dt);
-        B->setVelocity(B->getVelocity()+impulse*B->getWeight_1()*dt);
-    }*/
-};
-/*
-class GameEntity;
-
-class Scene
-{
-private:
-	vector<GameEntity*> entitati;
-	GameEntity* player;
-
-protected:
-
-public:
-	Scene() : entitati(0, (GameEntity*)0) {}
-	Scene(const vector<GameEntity*>& entitati);
-	~Scene()
-	{
-		int i;
-		for(i=0;i<this->entitati.getSize();++i)
-			delete this->entitati[i];
-	}
-
-	void tick(const float dt);
-
-	void spawn(const GameEntity& entity);
-	void spawn(GameEntity* const entity) {this->entitati.push_back(entity);}
-
-	void draw(sf::RenderWindow* window);
-
-	void setPlayer(GameEntity* const newPlayer) {this->player=newPlayer;}
+        bool hover=(sf::Mouse::getPosition(window).x>=this->topLeft.get_x() && sf::Mouse::getPosition(window).x<=this->bottomRight.get_x() && sf::Mouse::getPosition(window).y>=this->topLeft.get_y() && sf::Mouse::getPosition(window).y<=this->bottomRight.get_y());
+        if(this->drawFnc)
+            this->drawFnc(*this, hover, window);
+    }
+    [[nodiscard]] vec2i getTopLeft() {return this->topLeft;}
+    [[nodiscard]] vec2i getBottomRight() {return this->bottomRight;}
 };
 
-enum GameEntityType{PlayerGameEntity, MonsterGameEntity, BulletGameEntity, GameEntityTypeCnt};
+void handleMovement(Entity& player) {player.setVelocity(vec2f((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),-(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))).normalize()*=4);}
 
-class GameEntity
-{
-private:
-
-protected:
-	Entity body;
-	float health;
-	GameEntityType type;
-
-public:
-	GameEntity(GameEntityType type=PlayerGameEntity) : health(100), type(type) {}
-	GameEntity(const Entity& body, GameEntityType type=PlayerGameEntity) : body(body), health(100), type(type) {}
-	virtual ~GameEntity() {}
-
-	virtual void draw(sf::RenderWindow* window) const = 0;
-
-	vec2f get_pos() const {return this->body.getCenter();}
-	void set_pos(vec2f newPos) {this->body.setCenter(newPos);}
-
-	virtual void tick(const float dt) = 0;
-	virtual GameEntity* makeCopy() const = 0;
-	Entity* getBody() {return &this->body;}
-
-	const GameEntityType getType() const {return this->type;}
-
-	virtual void takeDamage(GameEntity* bullet);
-};
-
-void Scene::spawn(const GameEntity& entity) {this->entitati.push_back(entity.makeCopy());}
-void Scene::draw(sf::RenderWindow* window) {int i; for(i=0;i<this->entitati.getSize();++i) this->entitati[i]->draw(window);}
-Scene::Scene(const vector<GameEntity*>& entitati, int playerIndex) : entitati(entitati) {player=this->entitati[playerIndex];}
-void Scene::tick(const float dt)
-{
-	int i, j;
-	for(i=0;i<this->entitati.getSize();++i)
-	{
-		for(j=i+1;j<this->entitati.getSize();++j)
-		{
-			if(this->entitati[i]->getType()==MonsterGameEntity && this->entitati[j]->getType()==BulletGameEntity)
-			{
-				if(Physics::checkIntersection(this->entitati[i]->getBody(), this->entitati[j]->getBody()))
-				{
-					this->entitati[j]->takeDamage(this->entitati[i]);
-				}
-			}
-			else
-			{
-				Physics::solve(this->entitati[i]->getBody(), this->entitati[j]->getBody(), dt);
-			}
-		}
-	}
-	for(i=0;i<this->entitati.getSize();++i)
-	{
-		this->entitati[i]->getBody()->tick(dt);
-	}
-}
-
-class Monster : public GameEntity
-{
-private:
-
-protected:
-	Scene* scene;
-	GameEntity* target;
-
-public:
-	Monster(vec2f pos=vec2f()) : GameEntity(pos) {}
-	virtual ~Monster() {}
-
-	virtual void draw(sf::RenderWindow* window) const
-	{
-		//sf::setcolor(red);
-		//window->fillCircle(this->body.getCenter(), this->body.getRadius());
-	}
-
-	friend std::ostream& operator<<(std::ostream& out, const Monster& m) {return out<<m.body;}
-
-	void setTarget(GameEntity* target) {this->target=target;}
-
-	virtual void tick(const float dt) override
-	{
-		if(this->target)
-		{
-			this->body.setVelocity((this->target->getBody()->getCenter()-this->body.getCenter()).normalized());
-		}
-		else
-		{
-			this->body.setVelocity(vec2f());
-		}
-		this->body.tick(dt);
-	}
-
-	virtual GameEntity* makeCopy() const {return new Monster(*this);}
-};
-
-class Player : public GameEntity
-{
-private:
-	Monster* enemy;
-	Scene* scene;
-
-protected:
-
-public:
-	Player() = default;
-	virtual ~Player();
-
-	virtual void draw(sf::RenderWindow* window) const
-	{
-		//sf::setcolor(red);
-		//window->fillCircle(this->body.getCenter(), this->body.getRadius());
-	}
-
-	friend std::ostream& operator<<(std::ostream& out, const Player& p)
-	{
-		return out<<p.body;
-	}
-
-	void attack(Monster* enemy)
-	{
-		this->enemy=enemy;
-	}
-
-	void shoot() const
-	{
-
-	}
-
-	virtual void tick()
-	{
-
-	}
-
-	void setScene(Scene* const scene) {this->scene=scene;}
-
-	virtual GameEntity* makeCopy() const override {return new Player(*this);}
-};
-
-class Bullet : public GameEntity
-{
-private:
-
-protected:
-	float damage;
-
-public:
-	Bullet(vec2f pos=vec2f()) : GameEntity(pos), damage(1) {}
-	~Bullet() = default;
-
-	virtual void tick(const float dt)
-	{
-		if(this->body.center.get_x()<-WORLDWIDTH || this->body.center.get_y()<-WORLDHEIGHT || this->body.center.get_x()>WORLDWIDTH || this->body.getCenter().get_y()>WORLDHEIGHT)
-		{
-
-		}
-	}
-
-	virtual void draw(sf::RenderWindow* window) const
-	{
-		//sf::setcolor(red);
-		//window->fillCircle(this->body.getCenter(), this->body.getRadius());
-	}
-
-	virtual float getDamage() const {return this->damage;}
-};
-
-void GameEntity::takeDamage(GameEntity* _bullet)
-{
-	Bullet* bullet=(Bullet*)_bullet;
-	this->health-=bullet->getDamage();
-}*/
-
-void handleMovement(Entity& player)
-{
-    vec2f movement((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),-(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)));
-    player.setVelocity(movement.normalize()*=4);
-}
-
-void handleShooting(vector<Entity*>& bullets, long long& last_bullet, Entity& player, sf::RenderWindow& window)
+void handleShooting(std::vector<Entity*>& bullets, long long& last_bullet, Entity& player, sf::RenderWindow& window)
 {
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-last_bullet>=bullet_time_spawn)
     {
@@ -522,11 +135,11 @@ void handleShooting(vector<Entity*>& bullets, long long& last_bullet, Entity& pl
         sf::Vector2i mousePos=sf::Mouse::getPosition(window);
         bullet->setVelocity((vec2f((float)mousePos.x,(float)mousePos.y)-player.getCenter()).normalize()*=11);
         bullet->setColor(sf::Color(255,255,0));
-        bullets+=bullet;
+        bullets.push_back(bullet);
     }
 }
 
-Entity* trySpawnMonster(vec2f center, const float chancePerTick=0.01/5.6, const float radius=40)
+Entity* trySpawnMonster(vec2f center, const float chancePerTick=0.01/5.6, const float radius=80)
 {
     if((float)rand()/(float)RAND_MAX<chancePerTick)
     {
@@ -540,10 +153,10 @@ Entity* trySpawnMonster(vec2f center, const float chancePerTick=0.01/5.6, const 
     return nullptr;
 }
 
-bool gameLogic(Entity& player, vector<Entity*>& monstri, vector<Entity*>& bullets)
+bool gameLogic(Entity& player, std::vector<Entity*>& monstri, std::vector<Entity*>& bullets)
 {
     int i, j;
-    for(i=0;i<monstri.getSize();++i)
+    for(i=0;i<(int)monstri.size();++i)
     {
         if(Physics::checkIntersection(&player, monstri[i]))
         {
@@ -557,21 +170,21 @@ bool gameLogic(Entity& player, vector<Entity*>& monstri, vector<Entity*>& bullet
             monstri[i]->setVelocity((player.getCenter()-monstri[i]->getCenter()).normalize()*=2);
         }
 
-        for(j=0;j<bullets.getSize();++j)
+        for(j=0;j<(int)bullets.size();++j)
         {
             if(Physics::checkIntersection(monstri[i],bullets[j]))
             {
-                bullets.swap(j,bullets.getSize()-1);
-                delete bullets[bullets.getSize()-1];
+                std::swap(bullets[j], bullets[(int)bullets.size()-1]);
+                delete bullets[(int)bullets.size()-1];
                 bullets.pop_back();
                 --j;
                 if(monstri[i]->takeDamage(20)<=0)
                 {
-                    monstri.swap(i,monstri.getSize()-1);
-                    delete monstri[monstri.getSize()-1];
+                    std::swap(monstri[i], monstri[(int)monstri.size()-1]);
+                    delete monstri[(int)monstri.size()-1];
                     monstri.pop_back();
                     --i;
-                    j=bullets.getSize();
+                    j=(int)bullets.size();
                 }
             }
         }
@@ -579,16 +192,133 @@ bool gameLogic(Entity& player, vector<Entity*>& monstri, vector<Entity*>& bullet
     return false;
 }
 
-void drawBullets(vector<Entity*>& bullets, sf::RenderWindow& window)
+enum MENU{EXITGAME, MAINMENU, GAMEPLAY, PAUSEMENU, MENUCNT};
+MENU prevMenu=MAINMENU;
+MENU menu=MAINMENU;
+
+void pauseGame() {menu=PAUSEMENU;}
+void resumeGame() {menu=GAMEPLAY;}
+void goToMainMenu() {menu=MAINMENU;}
+void exitGame() {menu=EXITGAME;}
+
+void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
 {
-    int i;
-    for(i=0;i<bullets.getSize();++i)
+    sf::RectangleShape rect;
+    vec2i topLeft=btn.getTopLeft();
+    vec2i dim=btn.getBottomRight()-topLeft;
+
+    rect.setPosition(sf::Vector2f((float)topLeft.get_x(), (float)topLeft.get_y()));
+    rect.setSize(sf::Vector2f((float)dim.get_x(), (float)dim.get_y()));
+    if(hover)
+        rect.setFillColor(sf::Color(191, 0, 0));
+    else
+        rect.setFillColor(sf::Color(255, 0, 0));
+
+    window.draw(rect);
+
+    dim/=5;
+
+    rect.setPosition(sf::Vector2f((float)(topLeft+dim).get_x(), (float)(topLeft+dim).get_y()));
+    rect.setSize(sf::Vector2f((float)dim.get_x(), 3*(float)dim.get_y()));
+    if(hover)
+        rect.setFillColor(sf::Color(191, 191, 191));
+    else
+        rect.setFillColor(sf::Color(255, 255, 255));
+
+    window.draw(rect);
+
+    rect.setPosition(sf::Vector2f((float)(topLeft+3*dim).get_x(), (float)(topLeft+dim).get_y()));
+    window.draw(rect);
+}
+
+void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
+{
+	sf::RectangleShape rect;
+    vec2i topLeft=btn.getTopLeft();
+    vec2i dim=btn.getBottomRight()-topLeft;
+
+    rect.setPosition(sf::Vector2f((float)topLeft.get_x(), (float)topLeft.get_y()));
+    rect.setSize(sf::Vector2f((float)dim.get_x(), (float)dim.get_y()));
+    if(hover)
+        rect.setFillColor(sf::Color(0, 191, 0));
+    else
+        rect.setFillColor(sf::Color(0, 255, 0));
+
+    window.draw(rect);
+
+    dim/=5;
+    sf::CircleShape triangle((float)dim.get_x()*2, 3);
+
+    triangle.setRotation(90);
+    triangle.setPosition(sf::Vector2f((float)topLeft.get_x()+(float)(dim*4).get_x(), (float)(topLeft+dim/2).get_y()));
+    if(hover)
+        triangle.setFillColor(sf::Color(191, 191, 191));
+    else
+        triangle.setFillColor(sf::Color(255, 255, 255));
+
+    window.draw(triangle);
+}
+
+void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
+{
+    sf::RectangleShape rect;
+    sf::ConvexShape line;
+    vec2i topLeft=btn.getTopLeft();
+    vec2i dim=btn.getBottomRight()-topLeft, aux;
+
+    rect.setPosition(sf::Vector2f((float)topLeft.get_x(), (float)topLeft.get_y()));
+    rect.setSize(sf::Vector2f((float)dim.get_x(), (float)dim.get_y()));
+    if(hover)
+        rect.setFillColor(sf::Color(191, 0, 0));
+    else
+        rect.setFillColor(sf::Color(255, 0, 0));
+
+    window.draw(rect);
+
+    aux=dim/8;
+
+    line.setPosition(sf::Vector2f((float)topLeft.get_x(), (float)topLeft.get_y()));
+    line.setPointCount(6);
+    if(hover)
+        line.setFillColor(sf::Color(191, 191, 191));
+    else
+        line.setFillColor(sf::Color(255, 255, 255));
+
+    line.setPoint(0, sf::Vector2f(0, 0));
+    line.setPoint(1, sf::Vector2f(0, (float)aux.get_y()));
+    line.setPoint(2, sf::Vector2f((float)dim.get_x()-(float)aux.get_x(), (float)dim.get_y()));
+    line.setPoint(3, sf::Vector2f((float)dim.get_x(), (float)dim.get_y()));
+    line.setPoint(4, sf::Vector2f((float)dim.get_x(), (float)dim.get_y()-(float)aux.get_y()));
+    line.setPoint(5, sf::Vector2f((float)aux.get_x(), 0));
+
+    window.draw(line);
+
+    line.setPoint(0, sf::Vector2f((float)dim.get_x(), 0));
+    line.setPoint(1, sf::Vector2f((float)dim.get_x(), (float)aux.get_y()));
+    line.setPoint(2, sf::Vector2f((float)aux.get_x(), (float)dim.get_y()));
+    line.setPoint(3, sf::Vector2f(0, (float)dim.get_y()));
+    line.setPoint(4, sf::Vector2f(0, (float)dim.get_y()-(float)aux.get_y()));
+    line.setPoint(5, sf::Vector2f((float)dim.get_x()-(float)aux.get_x(), 0));
+
+    window.draw(line);
+}
+
+void render(sf::RenderWindow& window, Entity& player, std::vector<Entity*>& monstri, std::vector<Entity*>& bullets)
+{
+	int i;
+	vec2f pos_bullet;
+	float rad;
+
+	player.draw(window);
+	for(i=0;i<(int)monstri.size();++i)
+		monstri[i]->draw(window);
+    for(i=0;i<(int)bullets.size();++i)
     {
-        vec2f pos_bullet=bullets[i]->getCenter();
-        float rad=bullets[i]->getRadius();
+        pos_bullet=bullets[i]->getCenter();
+        rad=bullets[i]->getRadius();
         if(pos_bullet.get_x()<-rad || pos_bullet.get_x()>(float)WINDOWWIDTH+rad || pos_bullet.get_y()<-rad || pos_bullet.get_y()>(float)WINDOWHEIGHT+rad)
         {
-            bullets.swap(i, bullets.getSize()-1);
+            std::swap(bullets[i], bullets[(int)bullets.size()-1]);
             bullets.pop_back();
         }
         else
@@ -596,17 +326,60 @@ void drawBullets(vector<Entity*>& bullets, sf::RenderWindow& window)
     }
 }
 
+void tick(sf::RenderWindow& window, Entity& player, std::vector<Entity*>& monstri, std::vector<Entity*>& bullets, long long& last_bullet, const float dt)
+{
+    int i;
+
+	//Event handling:
+	handleMovement(player);
+
+	handleShooting(bullets, last_bullet, player, window);
+
+	//Game Logic
+	if(Entity* monstru=trySpawnMonster(player.getCenter())) monstri.push_back(monstru);
+
+	if(gameLogic(player, monstri, bullets))
+	{
+		menu=MAINMENU;
+        return;
+	}
+
+	//Physics update
+	player.tick(dt);
+	for(i=0;i<(int)monstri.size();++i)
+	{
+		monstri[i]->tick(dt);
+	}
+	for(i=0;i<(int)bullets.size();++i)
+	{
+		bullets[i]->tick(dt);
+	}
+}
+
 int main()
 {
+    WINDOWHEIGHT=600;
+    WINDOWWIDTH=600;
     sf::RenderWindow window;
     // NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:30
     window.create(sf::VideoMode({600, 600}), "Shooter", sf::Style::Default);
     window.setVerticalSyncEnabled(false);
     //window.setFramerateLimit(60);
 
-    WINDOWHEIGHT=600;
-    WINDOWWIDTH=600;
     const float dt=1/32.f;
+
+    Button pauseButton(vec2i(0, 0), vec2i(50, 50), pauseGame, drawPauseButton);
+    Button resumeButton(vec2i(200, 200), vec2i(250, 250), resumeGame, drawResumeButton);
+    Button playGameButton(vec2i(268, 268), vec2i(332, 332), resumeGame, drawResumeButton);
+    Button mainMenuButton(vec2i(350, 200), vec2i(400, 250), goToMainMenu, drawXButton);
+    Button exitGameButton(vec2i(550, 0), vec2i(600, 50), exitGame, drawXButton);
+
+    std::vector<Button*> buttons[MENUCNT];
+    buttons[GAMEPLAY].push_back(&pauseButton);
+    buttons[PAUSEMENU].push_back(&resumeButton);
+    buttons[MAINMENU].push_back(&playGameButton);
+    buttons[PAUSEMENU].push_back(&mainMenuButton);
+    buttons[MAINMENU].push_back(&exitGameButton);
 
     int i;
     Entity player(vec2f(), 10);
@@ -614,10 +387,12 @@ int main()
     long long last_frame=std::chrono::system_clock::now().time_since_epoch().count();
     long long last_bullet=last_frame;
     const long long frame_time=3000000;
-    vector<Entity*> monstri;
-    vector<Entity*> bullets;
+    std::vector<Entity*> monstri;
+    std::vector<Entity*> bullets;
 
     srand(time(nullptr));
+
+    player.setCenter(vec2f((float)(WINDOWWIDTH>>1), (float)(WINDOWHEIGHT>>1)));
 
     while(window.isOpen())
     {
@@ -625,67 +400,72 @@ int main()
         {
             last_frame=std::chrono::system_clock::now().time_since_epoch().count();
 
-            //Event handling:
-            handleMovement(player);
+            //Non game logic event handling
+			sf::Event e=sf::Event();
+			while(window.pollEvent(e))
+			{
+				switch(e.type)
+				{
+					case sf::Event::Closed:
+						window.close();
+						break;
+					case sf::Event::Resized:
+						//std::cout << "New width: " << window.getSize().x << '\n'
+						//		  << "New height: " << window.getSize().y << '\n';
+						WINDOWWIDTH=(int)window.getSize().x;
+						WINDOWHEIGHT=(int)window.getSize().y;
+						break;
+					case sf::Event::MouseButtonPressed:
+						for(i=0;i<(int)buttons[menu].size();++i)
+							buttons[menu][i]->click(vec2i(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y));
+					default:
+						break;
+				}
+			}
 
-            handleShooting(bullets, last_bullet, player, window);
-
-            sf::Event e=sf::Event();
-            while(window.pollEvent(e))
-            {
-                switch(e.type)
-                {
-                    case sf::Event::Closed:
-                        window.close();
-                        break;
-                    case sf::Event::Resized:
-                        //std::cout << "New width: " << window.getSize().x << '\n'
-                        //		  << "New height: " << window.getSize().y << '\n';
-                        WINDOWWIDTH=(int)window.getSize().x;
-                        WINDOWHEIGHT=(int)window.getSize().y;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            //Game Logic
-            if(Entity* monstru=trySpawnMonster(player.getCenter())) monstri+=monstru;
-
-            if(gameLogic(player, monstri, bullets))
+            if(menu==EXITGAME)
             {
                 window.close();
                 break;
             }
 
-            //Physics update
-            player.tick(dt);
-            for(i=0;i<monstri.getSize();++i)
+			window.clear();
+
+			if(menu==GAMEPLAY)
+			{
+				tick(window, player, monstri, bullets, last_bullet, dt);
+				render(window, player, monstri, bullets);
+			}
+
+			for(i=0;i<(int)buttons[menu].size();++i)
+				buttons[menu][i]->draw(window);
+
+			window.display();
+
+            if(menu==MAINMENU && prevMenu!=MAINMENU)
             {
-                monstri[i]->tick(dt);
-            }
-            for(i=0;i<bullets.getSize();++i)
-            {
-                bullets[i]->tick(dt);
+                player.setCenter(vec2f((float)(WINDOWWIDTH>>1), (float)(WINDOWHEIGHT>>1)));
+                for(i=0;i<(int)monstri.size();++i)
+                {
+                    delete monstri[i];
+                    monstri[i]=nullptr;
+                }
+                monstri.clear();
+                for(i=0;i<(int)bullets.size();++i)
+                {
+                    delete bullets[i];
+                    bullets[i]=nullptr;
+                }
+                bullets.clear();
             }
 
-            //Rendering
-            window.clear();
-
-            player.draw(window);
-            for(i=0;i<monstri.getSize();++i)
-            {
-                monstri[i]->draw(window);
-            }
-            drawBullets(bullets, window);
-
-            window.display();
+			prevMenu=menu;
         }
     }
 
-    for(i=0;i<monstri.getSize();++i)
+    for(i=0;i<(int)monstri.size();++i)
         delete monstri[i];
-    for(i=0;i<bullets.getSize();++i)
+    for(i=0;i<(int)bullets.size();++i)
         delete bullets[i];
 
     return 0;
