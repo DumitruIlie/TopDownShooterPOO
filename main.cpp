@@ -1,92 +1,17 @@
 //Ilie Dumitru
 #include<SFML/Audio.hpp>
 #include<SFML/Graphics.hpp>
-#include<iostream>
 #include<exception>
 #include<cmath>
 #include<chrono>
 #include<cstdlib>
 #include<vector>
+#include"vec2.h"
+#include"Entity.h"
+#include"Button.h"
 
 int WINDOWWIDTH, WINDOWHEIGHT;
 const long long bullet_time_spawn=200000000LL;
-
-template <class T>
-class vec2
-{
-private:
-    T x, y;
-
-public:
-    vec2() : x(), y() {}
-    vec2(T _x, T _y) : x(_x), y(_y) {}
-
-    vec2<T> operator+(const vec2<T>& v) const {return vec2<T>(this->x+v.x, this->y+v.y);}
-    vec2<T> operator-(const vec2<T>& v) const {return vec2<T>(this->x-v.x, this->y-v.y);}
-    vec2<T> operator-() const {return vec2<T>(-this->x, -this->y);}
-    vec2<T> operator*(const T& s) const {return vec2<T>(this->x*s, this->y*s);}
-    friend vec2<T> operator*(const T& s, const vec2<T>& a) {return vec2<T>(a.x*s, a.y*s);}
-    vec2<T> operator/(const T& s) const {if(s) return vec2<T>(this->x/s, this->y/s); return vec2<T>();}
-
-    vec2<T>& operator+=(const vec2<T>& v) {this->x+=v.x; this->y+=v.y; return *this;}
-    vec2<T>& operator-=(const vec2<T>& v) {this->x-=v.x; this->y-=v.y; return *this;}
-    vec2<T>& operator*=(const T& s) {this->x*=s; this->y*=s; return *this;}
-    vec2<T>& operator/=(const T& s) {if(s) {this->x/=s; this->y/=s;} else {this->x=this->y=0;} return *this;}
-
-    T operator*(const vec2<T>& v) const {return this->x*v.x+this->y*v.y;}
-    T operator^(const vec2<T>& v) const {return this->x*v.y-this->y*v.x;}
-    bool operator==(const vec2<T>& v) const {return this->x==v.x && this->y==v.y;}
-    bool operator!=(const vec2<T>& v) const {return this->x!=v.x || this->y!=v.y;}
-
-    friend std::ostream& operator<<(std::ostream& out, const vec2<T>& v) {return out<<'('<<v.x<<", "<<v.y<<')';}
-    friend std::istream& operator>>(std::istream& in, const vec2<T>& v) {return in>>v.x>>v.y;}
-
-    [[nodiscard]] T get_x() const {return this->x;}
-    [[nodiscard]] T get_y() const {return this->y;}
-    //void set_x(const T& _x) {this->x=_x;}
-    //void set_y(const T& _y) {this->y=_y;}
-
-    [[nodiscard]] T lengthSquared() const {return this->x*this->x+this->y*this->y;}
-    [[nodiscard]] T length() const {return sqrt(this->x*this->x+this->y*this->y);}
-    vec2<T>& normalize() {return *this/=this->length();}
-    //[[nodiscard]] vec2<T> normalized() const {return *this/this->length();}
-};
-typedef vec2<int> vec2i;
-typedef vec2<float> vec2f;
-
-class Entity
-{
-private:
-    vec2f center;
-    const float radius;
-    vec2f velocity;
-    float hp;
-    sf::Color color;
-
-protected:
-
-public:
-    explicit Entity(const vec2f center=vec2f(), const float radius=1) : center(center), radius(radius), velocity(), hp(100) {}
-    virtual ~Entity() = default;
-
-    [[nodiscard]] vec2f getCenter() const {return this->center;}
-    void setCenter(const vec2f newCenter) {center=newCenter;}
-
-    [[nodiscard]] float getRadius() const {return this->radius;}
-
-    //vec2f getVelocity() const {return this->velocity;}
-    void setVelocity(const vec2f newVelocity) {this->velocity=newVelocity;}
-
-    void setColor(sf::Color _color) {this->color=_color;}
-
-    void tick(const float dt) {this->center+=this->velocity*dt;}
-
-    void draw(sf::RenderWindow& window) const {sf::CircleShape shape(this->radius); shape.setPosition(sf::Vector2f(this->center.get_x()-this->radius, this->center.get_y()-this->radius)); shape.setFillColor(this->color); window.draw(shape);}
-
-    float takeDamage(float damage) {return this->hp-=damage;}
-
-    friend std::ostream& operator<<(std::ostream& out, const Entity& circle) {return out<<'('<<circle.center<<", "<<circle.radius<<", "<<circle.velocity<<')';}
-};
 
 class Physics
 {
@@ -94,34 +19,6 @@ public:
     Physics() = delete;
 
     static bool checkIntersection(Entity* A, Entity* B) {return (A->getCenter()-B->getCenter()).lengthSquared()<=(A->getRadius()+B->getRadius())*(A->getRadius()+B->getRadius());}
-};
-
-class Button
-{
-private:
-    void (*onClick)();
-    void (*drawFnc)(Button&, bool, sf::RenderWindow&);
-
-protected:
-    vec2i topLeft, bottomRight;
-
-public:
-    Button() : onClick(nullptr), drawFnc(nullptr), topLeft(0, 0), bottomRight(0, 0) {}
-    Button(vec2i _topLeft, vec2i _bottomRight) : onClick(nullptr), drawFnc(nullptr), topLeft(_topLeft), bottomRight(_bottomRight) {}
-    Button(vec2i _topLeft, vec2i _bottomRight, void (*_onClick)(), void (*_drawFnc)(Button&, bool, sf::RenderWindow&)) : onClick(_onClick), drawFnc(_drawFnc), topLeft(_topLeft), bottomRight(_bottomRight) {}
-    Button(const Button& other) = default;
-    virtual ~Button() = default;
-    Button& operator=(const Button& other) = default;
-
-    void click(vec2i mousePos) {if(this->topLeft.get_x()<=mousePos.get_x() && mousePos.get_x()<=this->bottomRight.get_x() && this->topLeft.get_y()<=mousePos.get_y() && mousePos.get_y()<=this->bottomRight.get_y() && this->onClick) this->onClick();}
-    void draw(sf::RenderWindow& window)
-    {
-        bool hover=(sf::Mouse::getPosition(window).x>=this->topLeft.get_x() && sf::Mouse::getPosition(window).x<=this->bottomRight.get_x() && sf::Mouse::getPosition(window).y>=this->topLeft.get_y() && sf::Mouse::getPosition(window).y<=this->bottomRight.get_y());
-        if(this->drawFnc)
-            this->drawFnc(*this, hover, window);
-    }
-    [[nodiscard]] vec2i getTopLeft() {return this->topLeft;}
-    [[nodiscard]] vec2i getBottomRight() {return this->bottomRight;}
 };
 
 void handleMovement(Entity& player) {player.setVelocity(vec2f((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),-(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))).normalize()*=4);}
