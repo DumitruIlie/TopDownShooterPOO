@@ -81,19 +81,17 @@ void Game::render(sf::RenderWindow& window)
 {
     static sf::Font font;
     static bool fontLoaded=false;
-    if(!fontLoaded)
-    {
-        if(!font.loadFromFile("arial.ttf"))
-        {
+    if(!fontLoaded){
+        if(!font.loadFromFile("arial.ttf")){
             throw std::runtime_error("Font could not be found, make sure it is in the right directory!\n");
         }
         fontLoaded=true;
     }
 
-    int i;
-
     if(MenuSystem::getMenu()==PAUSEMENU || MenuSystem::getMenu()==GAMEPLAY)
     {
+        int i;
+
         player.draw(window);
         for(i=0;i<(int)this->enemies.size();++i)
             this->enemies[i]->draw(window);
