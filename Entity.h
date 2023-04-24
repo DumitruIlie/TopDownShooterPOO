@@ -17,7 +17,9 @@ private:
 protected:
 
 public:
-    explicit Entity(const vec2f center=vec2f(), const float radius=1) : center(center), radius(radius), velocity(), hp(100) {}
+    constexpr static const float MAX_HP=100;
+
+    explicit Entity(const vec2f center=vec2f(), const float radius=1) : center(center), radius(radius), velocity(), hp(MAX_HP) {}
     virtual ~Entity() = default;
 
     [[nodiscard]] vec2f getCenter() const {return this->center;}
@@ -35,6 +37,8 @@ public:
     void draw(sf::RenderWindow& window) const;
 
     float takeDamage(float damage) {return this->hp-=damage;}
+
+    void resetLife() {this->hp=MAX_HP;}
 
     friend std::ostream& operator<<(std::ostream& out, const Entity& circle) {return out<<'('<<circle.center<<", "<<circle.radius<<", "<<circle.velocity<<')';}
 };
