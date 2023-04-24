@@ -39,7 +39,7 @@ void Game::tick(sf::RenderWindow& window)
             this->handleMovement();
             this->handleShooting(window);
 
-            if(Entity* monster=this->trySpawnMonster(this->player.getCenter(), 50, 0.001, window))
+            if(Entity* monster=this->trySpawnMonster(this->player.getCenter(), 50, 0.0025f, window))
                 this->spawnEnemy(monster);
 
             gameLogic(window);
