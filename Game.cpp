@@ -109,8 +109,8 @@ void Game::render(sf::RenderWindow& window)
         }
 
         sf::Text scoreText;
-        char scoreChar[10];
-        sprintf(scoreChar, "%d", this->score*10);
+        char scoreChar[15];
+        snprintf(scoreChar, 10, "%d", this->score*10);
         scoreText.setString(scoreChar);
         scoreText.setCharacterSize(34);
         scoreText.setFillColor(sf::Color(255, 255, 255));
