@@ -70,7 +70,7 @@ EnemyBuilder& EnemyBuilder::setPos(const vec2f pos) {this->checkMissing(); this-
 
 EnemyBuilder& EnemyBuilder::setSize(const float radius) {this->checkMissing(); this->beingBuilt->radius=radius; return *this;}
 
-EnemyBuilder& EnemyBuilder::setInitVelocity(const vec2f vel) {this->checkMissing(); this->beingBuilt->setVelocity(vel); return *this;}
+//EnemyBuilder& EnemyBuilder::setInitVelocity(const vec2f vel) {this->checkMissing(); this->beingBuilt->setVelocity(vel); return *this;}
 
 EnemyBuilder& EnemyBuilder::setMaxHealth(const float max_hp, const bool overhealable) {this->checkMissing(); this->beingBuilt->MAX_HP=max_hp*(1+0.5f*(float)overhealable); this->beingBuilt->overhealable=overhealable; this->beingBuilt->hp=this->beingBuilt->MAX_HP; return *this;}
 

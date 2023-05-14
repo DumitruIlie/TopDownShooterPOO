@@ -20,9 +20,9 @@ void BeeBullet::tick(const float dt)
         {
             this->target=this->game->getClosestEnemy(this->getCenter());
         }
-        catch(InvalidQuery& ex)
+        catch(InvalidQuery&)
         {
-            this->target=0;
+            this->target=nullptr;
         }
     }
     else

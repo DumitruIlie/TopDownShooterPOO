@@ -24,7 +24,7 @@ public:
     void checkMissing();
     EnemyBuilder& setPos(vec2f pos);
     EnemyBuilder& setSize(float radius);
-    EnemyBuilder& setInitVelocity(vec2f vel);
+    //EnemyBuilder& setInitVelocity(vec2f vel);
     EnemyBuilder& setMaxHealth(float max_hp, bool overhealable);
     EnemyBuilder& setColor(sf::Color col);
     EnemyBuilder& setGame(Game* _game);
