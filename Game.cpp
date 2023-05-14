@@ -265,7 +265,7 @@ void Game::handleShooting(sf::RenderWindow& window)
     }
 }
 
-bool Game::isEnemyAlive(Entity* enemy)
+bool Game::isEnemyAlive(const Entity* const enemy)
 {
     if(!enemy)
         return false;
@@ -281,12 +281,15 @@ Entity* Game::getClosestEnemy(vec2f pos)
     if((int)this->enemies.size()==0)
         throw InvalidQuery("");
     int i, min=0;
-    float mindist=(pos-this->enemies[0]->getCenter()).lengthSquared(), aux;
+    float mindist=(pos-this->enemies[0]->getCenter()).lengthSquared();
     for(i=1;i<(int)this->enemies.size();++i)
-        if((aux=(pos-this->enemies[i]->getCenter()).lengthSquared())<mindist)
+    {
+        float aux=(pos-this->enemies[i]->getCenter()).lengthSquared();
+        if(aux<mindist)
         {
             mindist=aux;
             min=i;
         }
+    }
     return this->enemies[min];
 }

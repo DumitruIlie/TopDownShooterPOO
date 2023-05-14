@@ -50,7 +50,7 @@ public:
     Entity* getPlayer();
     Entity* getClosestEnemy(vec2f pos);
 
-    bool isEnemyAlive(Entity* enemy);
+    bool isEnemyAlive(const Entity* const enemy);
 };
 
 #endif//GAME_H
