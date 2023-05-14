@@ -2,45 +2,69 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+enum MODIFIABLE{SPEEDFACTOR, DAMAGEFACTOR, HEALTH, CNTMODIFIABLES};
+
 #include"vec2.h"
+#include"Game.h"
+#include"Powerup.h"
 #include<SFML/Graphics.hpp>
+
+class Game;
 
 class Entity
 {
 private:
     vec2f center;
-    const float radius;
+    float radius;
     vec2f velocity;
     float hp;
+    float MAX_HP;
     sf::Color color;
 
+    long long lastDamageTaken;
+
 protected:
+    Game* game;
+    float modifiables[CNTMODIFIABLES];
+
+private:
+    bool overhealable;
 
 public:
-    constexpr static const float MAX_HP=100;
+    friend class Powerup;
+    friend class EnemyBuilder;
 
-    explicit Entity(const vec2f center=vec2f(), const float radius=1) : center(center), radius(radius), velocity(), hp(MAX_HP) {}
+    explicit Entity(Game* _game, vec2f center=vec2f(), float radius=1, float MAXHP=100, bool overhealable=true);
+    Entity(const Entity& other) = default;
     virtual ~Entity() = default;
 
-    [[nodiscard]] vec2f getCenter() const {return this->center;}
-    void setCenter(const vec2f newCenter) {center=newCenter;}
+    [[nodiscard]] vec2f getCenter() const;
+    void setCenter(vec2f newCenter);
 
-    [[nodiscard]] float getRadius() const {return this->radius;}
+    [[nodiscard]] float getRadius() const;
 
-    //vec2f getVelocity() const {return this->velocity;}
-    void setVelocity(const vec2f newVelocity) {this->velocity=newVelocity;}
+    [[nodiscard]] vec2f getVelocity() const;
+    void setVelocity(vec2f newVelocityNormal);
 
-    void setColor(sf::Color _color) {this->color=_color;}
+    void setColor(sf::Color _color);
 
-    void tick(const float dt) {this->center+=this->velocity*dt;}
+    virtual void tick(float dt);
 
     void draw(sf::RenderWindow& window) const;
 
-    float takeDamage(float damage) {return this->hp-=damage;}
+    float takeDamage(float damage);
 
-    void resetLife() {this->hp=MAX_HP;}
+    [[nodiscard]] float getHP() const;
 
-    friend std::ostream& operator<<(std::ostream& out, const Entity& circle) {return out<<'('<<circle.center<<", "<<circle.radius<<", "<<circle.velocity<<')';}
+    void resetLife();
+
+    friend std::ostream& operator<<(std::ostream& out, const Entity& circle);
+
+    float getModifiable(MODIFIABLE modif) const;
+
+    float getDamage() const;
+
+    virtual Entity* clone();
 };
 
 #endif//ENTITY_H

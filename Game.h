@@ -2,6 +2,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+class Entity;
+
 #include<SFML/Graphics.hpp>
 #include<vector>
 #include"Entity.h"
@@ -10,8 +12,10 @@ class Game
 {
 private:
     float dt;
-    Entity player;
-    std::vector<Entity*> enemies, bullets;
+    Entity* player;
+    bool homingBullets;
+    std::vector<Entity*> enemies;
+    std::vector<Entity*> bullets;
 
     long long last_frame;
     long long last_bullet;
@@ -20,7 +24,10 @@ protected:
     virtual void gameLogic(sf::RenderWindow& window);
     virtual void handleMovement();
     virtual void handleShooting(sf::RenderWindow& window);
-    virtual Entity* trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chancePerTick, sf::RenderWindow& window);
+    virtual void trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chancePerTick, sf::RenderWindow& window);
+
+    Entity* spawnScout(vec2f spawnPos);
+    Entity* spawnHeavy(vec2f spawnPos);
 
     virtual void restart(sf::RenderWindow& window);
 
@@ -29,8 +36,11 @@ protected:
 public:
     static const long long frame_time=3000000;
     static const long long bullet_time_spawn=200000000LL;
+    static const long long invulnerabilityFramesTime=50000000LL;
 
     Game();
+    Game(const Game& other) = delete;
+    Game& operator=(const Game& other) = delete;
     virtual ~Game();
 
     virtual void eventHandler(sf::RenderWindow& window);
@@ -38,7 +48,9 @@ public:
     virtual void render(sf::RenderWindow& window);
 
     Entity* getPlayer();
-    void spawnEnemy(Entity* enemy);
+    Entity* getClosestEnemy(vec2f pos);
+
+    bool isEnemyAlive(Entity* enemy);
 };
 
 #endif//GAME_H
