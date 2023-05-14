@@ -4,7 +4,15 @@
 MENU MenuSystem::menu=MAINMENU;
 std::vector<Button*> MenuSystem::buttons[MENUCNT]={};
 
+const int CIRCLESPLITFACTOR=5;
+const int XSPLITFACTOR=8;
+const int PAUSESPLITFACTOR=5;
+
 void pauseGame() {MenuSystem::setMenu(PAUSEMENU);}
+void resumeGame() {MenuSystem::setMenu(GAMEPLAY);}
+void goToMainMenu() {MenuSystem::setMenu(MAINMENU);}
+void exitGame() {MenuSystem::setMenu(EXITGAME);}
+
 void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
@@ -20,7 +28,7 @@ void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(rect);
 
-    dim/=5;
+    dim/=CIRCLESPLITFACTOR;
 
     rect.setPosition(sf::Vector2f((float)(topLeft+dim).get_x(), (float)(topLeft+dim).get_y()));
     rect.setSize(sf::Vector2f((float)dim.get_x(), 3*(float)dim.get_y()));
@@ -34,9 +42,6 @@ void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
     rect.setPosition(sf::Vector2f((float)(topLeft+3*dim).get_x(), (float)(topLeft+dim).get_y()));
     window.draw(rect);
 }
-Button MenuSystem::gp_pauseButton(vec2i(0, 0), vec2i(50, 50), pauseGame, drawPauseButton);
-
-void resumeGame() {MenuSystem::setMenu(GAMEPLAY);}
 void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
@@ -52,7 +57,7 @@ void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(rect);
 
-    dim/=5;
+    dim/=CIRCLESPLITFACTOR;
     sf::CircleShape triangle((float)dim.get_x()*2, 3);
 
     triangle.setRotation(90);
@@ -64,10 +69,6 @@ void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(triangle);
 }
-Button MenuSystem::ps_resumeButton(vec2i(200, 200), vec2i(250, 250), resumeGame, drawResumeButton);
-Button MenuSystem::mm_playGameButton(vec2i(268, 268), vec2i(332, 332), resumeGame, drawResumeButton);
-
-void goToMainMenu() {MenuSystem::setMenu(MAINMENU);}
 void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
@@ -84,7 +85,7 @@ void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(rect);
 
-    aux=dim/8;
+    aux=dim/XSPLITFACTOR;
 
     line.setPosition(sf::Vector2f((float)topLeft.get_x(), (float)topLeft.get_y()));
     line.setPointCount(6);
@@ -111,10 +112,6 @@ void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(line);
 }
-Button MenuSystem::ps_mainMenuButton(vec2i(350, 200), vec2i(400, 250), goToMainMenu, drawXButton);
-void exitGame() {MenuSystem::setMenu(EXITGAME);}
-Button MenuSystem::mm_exitGameButton(vec2i(550, 0), vec2i(600, 50), exitGame, drawXButton);
-
 void drawReplayButton(Button& btn, bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
@@ -130,7 +127,7 @@ void drawReplayButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(rect);
 
-    dim/=5;
+    dim/=PAUSESPLITFACTOR;
     sf::CircleShape triangle((float)dim.get_x()*2, 3);
 
     triangle.setRotation(90);
@@ -142,6 +139,12 @@ void drawReplayButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(triangle);
 }
+
+Button MenuSystem::gp_pauseButton(vec2i(0, 0), vec2i(50, 50), pauseGame, drawPauseButton);
+Button MenuSystem::ps_resumeButton(vec2i(200, 200), vec2i(250, 250), resumeGame, drawResumeButton);
+Button MenuSystem::ps_mainMenuButton(vec2i(350, 200), vec2i(400, 250), goToMainMenu, drawXButton);
+Button MenuSystem::mm_playGameButton(vec2i(268, 268), vec2i(332, 332), resumeGame, drawResumeButton);
+Button MenuSystem::mm_exitGameButton(vec2i(550, 0), vec2i(600, 50), exitGame, drawXButton);
 Button MenuSystem::go_replayButton(vec2i(200, 250), vec2i(250, 300), resumeGame, drawReplayButton);
 Button MenuSystem::go_mainMenuButton(vec2i(350, 250), vec2i(400, 300), goToMainMenu, drawXButton);
 

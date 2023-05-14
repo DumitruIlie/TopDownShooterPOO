@@ -11,6 +11,7 @@ class MenuSystem
 {
 private:
     static MENU menu;
+    //Acest vector are dimensiune constanta, fiecare meniu are un numar variabil de butoane deci fiecare vector din vector are dimensiune variabila
     static std::vector<Button*> buttons[MENUCNT];
 
     static Button gp_pauseButton;

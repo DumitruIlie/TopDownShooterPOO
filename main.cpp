@@ -4,6 +4,7 @@
 #include<cstdlib>
 #include"MenuSystem.h"
 #include"Game.h"
+#include"AppException.h"
 
 int main()
 {
@@ -21,14 +22,22 @@ int main()
 
     srand(time(nullptr));
 
-    game.getPlayer()->setCenter(vec2f((float)WINDOWWIDTH/2.f, (float)WINDOWHEIGHT/2.f));
+    game.getPlayer().setCenter(vec2f((float)WINDOWWIDTH/2.f, (float)WINDOWHEIGHT/2.f));
 
     while(window.isOpen())
     {
         game.tick(window);
 
         window.clear();
-        game.render(window);
+        try
+        {
+            game.render(window);
+        }
+        catch(MissingFontException&)
+        {
+            window.close();
+            break;
+        }
         window.display();
 
         if(MenuSystem::getMenu()==EXITGAME)

@@ -20,7 +20,6 @@ private:
     long long last_frame;
     long long last_bullet;
 
-protected:
     virtual void gameLogic(sf::RenderWindow& window);
     virtual void handleMovement();
     virtual void handleShooting(sf::RenderWindow& window);
@@ -47,7 +46,7 @@ public:
     virtual void tick(sf::RenderWindow& window);
     virtual void render(sf::RenderWindow& window);
 
-    Entity* getPlayer();
+    Entity& getPlayer();
     Entity* getClosestEnemy(vec2f pos);
 
     bool isEnemyAlive(const Entity* const enemy);

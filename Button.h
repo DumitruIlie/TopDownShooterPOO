@@ -19,7 +19,7 @@ public:
     Button(vec2i _topLeft, vec2i _bottomRight) : onClick(nullptr), drawFnc(nullptr), topLeft(_topLeft), bottomRight(_bottomRight) {}
     Button(vec2i _topLeft, vec2i _bottomRight, void (*_onClick)(), void (*_drawFnc)(Button&, bool, sf::RenderWindow&)) : onClick(_onClick), drawFnc(_drawFnc), topLeft(_topLeft), bottomRight(_bottomRight) {}
     Button(const Button& other) = default;
-    virtual ~Button() = default;
+    ~Button() = default;
     Button& operator=(const Button& other) = default;
 
     void click(vec2i mousePos);

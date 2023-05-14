@@ -17,4 +17,10 @@ public:
     explicit InvalidQuery(const std::string& mesaj);
 };
 
+class MissingFontException : public AppException
+{
+public:
+    explicit MissingFontException(const std::string& mesaj);
+};
+
 #endif//APPEXCEPTION_H

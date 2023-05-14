@@ -23,7 +23,7 @@ Game::~Game()
         delete bullets[i];
 }
 
-Entity* Game::getPlayer() {return this->player;}
+Entity& Game::getPlayer() {return *this->player;}
 
 void Game::tick(sf::RenderWindow& window)
 {
@@ -93,9 +93,12 @@ void Game::render(sf::RenderWindow& window)
 {
     static sf::Font font;
     static bool fontLoaded=false;
-    if(!fontLoaded){
-        if(!font.loadFromFile("arial.ttf")){
-            throw std::runtime_error("Font could not be found, make sure it is in the right directory!\n");
+    if(!fontLoaded)
+    {
+        if(!font.loadFromFile("resurse/arial.ttf"))
+        {
+            //throw std::runtime_error("Font could not be found, make sure it is in the right directory!\n");
+            throw MissingFontException("Font could not be found where expected!\n");
         }
         fontLoaded=true;
     }
@@ -125,14 +128,14 @@ void Game::render(sf::RenderWindow& window)
         snprintf(scoreChar, 10, "%d", this->score*10);
         scoreText.setString(scoreChar);
         scoreText.setCharacterSize(34);
-        scoreText.setFillColor(sf::Color(255, 255, 255));
+        scoreText.setFillColor(sf::Color::White);
         scoreText.setFont(font);
         scoreText.setStyle(sf::Text::Bold);
 
         scoreText.setPosition(((float)window.getSize().x-(float)scoreText.getGlobalBounds().getSize().x)*0.5f, 10);
         window.draw(scoreText);
 
-        snprintf(scoreChar, 10, "%d", (int)this->getPlayer()->getHP());
+        snprintf(scoreChar, 10, "%d", (int)this->getPlayer().getHP());
         scoreText.setString(scoreChar);
 
         scoreText.setPosition(((float)window.getSize().x-(float)scoreText.getGlobalBounds().getSize().x)*0.5f, 50);
