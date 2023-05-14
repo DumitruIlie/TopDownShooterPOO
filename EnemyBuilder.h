@@ -27,7 +27,7 @@ public:
     //EnemyBuilder& setInitVelocity(vec2f vel);
     EnemyBuilder& setMaxHealth(float max_hp, bool overhealable);
     EnemyBuilder& setColor(sf::Color col);
-    EnemyBuilder& setGame(Game* _game);
+    //EnemyBuilder& setGame(Game* _game);
     EnemyBuilder& applyPowerup(const Powerup& powerup);
 
     Entity* spawn();

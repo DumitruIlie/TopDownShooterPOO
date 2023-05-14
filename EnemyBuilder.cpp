@@ -76,7 +76,7 @@ EnemyBuilder& EnemyBuilder::setMaxHealth(const float max_hp, const bool overheal
 
 EnemyBuilder& EnemyBuilder::setColor(const sf::Color col) {this->checkMissing(); this->beingBuilt->setColor(col); return *this;}
 
-EnemyBuilder& EnemyBuilder::setGame(Game* _game) {this->game=_game; this->checkMissing(); this->beingBuilt->game=_game; return *this;}
+//EnemyBuilder& EnemyBuilder::setGame(Game* _game) {this->game=_game; this->checkMissing(); this->beingBuilt->game=_game; return *this;}
 
 EnemyBuilder& EnemyBuilder::applyPowerup(const Powerup& powerup) {this->checkMissing(); powerup.affectEntity(this->beingBuilt); return *this;}
 
