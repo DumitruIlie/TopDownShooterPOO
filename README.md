@@ -1,6 +1,6 @@
 # Top down shooter
 
-Proiect tema 1 POO.
+Proiect tema 2 POO.
 
 ## Controale
 
