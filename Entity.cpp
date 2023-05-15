@@ -52,11 +52,6 @@ void Entity::resetLife() {this->hp=MAX_HP/(1+0.5f*(float)this->overhealable);}
 
 std::ostream& operator<<(std::ostream& out, const Entity& circle) {return out<<'('<<circle.center<<", "<<circle.radius<<", "<<circle.velocity<<')';}
 
-float Entity::getModifiable(MODIFIABLE modif) const {return this->modifiables[modif];}
+float Entity::getModifiable(const MODIFIABLE modif) const {return this->modifiables[modif];}
 
-float Entity::getDamage() const {return 5*this->getModifiable(DAMAGEFACTOR);}
-
-Entity* Entity::clone()
-{
-    return new Entity(*this);
-}
+Entity* Entity::clone() {return new Entity(*this);}

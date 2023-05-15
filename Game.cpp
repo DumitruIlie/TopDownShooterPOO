@@ -23,7 +23,7 @@ Game::~Game()
         delete bullets[i];
 }
 
-Entity& Game::getPlayer() {return *this->player;}
+Entity& Game::getPlayer() const {return *this->player;}
 
 void Game::tick(sf::RenderWindow& window)
 {
@@ -95,7 +95,7 @@ void Game::render(sf::RenderWindow& window)
     static bool fontLoaded=false;
     if(!fontLoaded)
     {
-        if(!font.loadFromFile("../resurse/arial.ttf"))
+        if(!font.loadFromFile("resurse/arial.ttf"))
         {
             //throw std::runtime_error("Font could not be found, make sure it is in the right directory!\n");
             throw MissingFontException("Font could not be found where expected!\n");
@@ -145,19 +145,19 @@ void Game::render(sf::RenderWindow& window)
     MenuSystem::render(window);
 }
 
-Entity* Game::spawnScout(vec2f spawnPos)
+Entity* Game::spawnScout(const vec2f spawnPos)
 {
     EnemyBuilder builder(this);
     return builder.setPos(spawnPos).setMaxHealth(100, false).setSize(7).setColor(sf::Color(0, 255, 0)).applyPowerup(SpeedIncreasePowerup(1)).applyPowerup(DamageIncreasePowerup(-0.5f)).spawn();
 }
 
-Entity* Game::spawnHeavy(vec2f spawnPos)
+Entity* Game::spawnHeavy(const vec2f spawnPos)
 {
     EnemyBuilder builder(this);
     return builder.setPos(spawnPos).setMaxHealth(300, false).setSize(15).setColor(sf::Color(255, 255, 0)).applyPowerup(SpeedIncreasePowerup(-0.25f)).applyPowerup(DamageIncreasePowerup(3)).spawn();
 }
 
-void Game::trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chance, sf::RenderWindow& window)
+void Game::trySpawnMonster(const vec2f restrictedAreaCenter, const float restrictedAreaRadius, const float chance, const sf::RenderWindow& window)
 {
     if((float)rand()/(float)RAND_MAX<chance)
     {
@@ -178,14 +178,15 @@ void Game::trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadiu
     }
 }
 
-void Game::gameLogic(sf::RenderWindow& window)
+void Game::gameLogic(const sf::RenderWindow& window)
 {
     int i, j;
     for(i=0;i<(int)this->enemies.size();++i)
     {
         if(Physics::checkIntersection(this->player, this->enemies[i]))
         {
-            if(this->player->takeDamage(this->enemies[i]->getDamage())<=0)
+            const float BASEDAMAGE=5;
+            if(this->player->takeDamage(this->enemies[i]->getModifiable(DAMAGEFACTOR)*BASEDAMAGE)<=0)
             {
                 MenuSystem::setMenu(GAMEOVER);
                 this->restart(window);
@@ -222,7 +223,7 @@ void Game::gameLogic(sf::RenderWindow& window)
     }
 }
 
-void Game::restart(sf::RenderWindow& window)
+void Game::restart(const sf::RenderWindow& window)
 {
     int i;
 
@@ -245,7 +246,7 @@ void Game::handleMovement()
                                              .normalize()*=4);
 }
 
-void Game::handleShooting(sf::RenderWindow& window)
+void Game::handleShooting(const sf::RenderWindow& window)
 {
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-this->last_bullet>=bullet_time_spawn)
     {
@@ -268,7 +269,7 @@ void Game::handleShooting(sf::RenderWindow& window)
     }
 }
 
-bool Game::isEnemyAlive(const Entity* const enemy)
+bool Game::isEnemyAlive(const Entity* const enemy) const
 {
     if(!enemy)
         return false;
@@ -279,7 +280,7 @@ bool Game::isEnemyAlive(const Entity* const enemy)
     return false;
 }
 
-Entity* Game::getClosestEnemy(vec2f pos)
+Entity* Game::getClosestEnemy(const vec2f pos) const
 {
     if((int)this->enemies.size()==0)
         throw InvalidQuery("");

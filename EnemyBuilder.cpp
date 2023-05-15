@@ -3,7 +3,7 @@
 
 EnemyBuilder::EnemyBuilder(Game* _game) : beingBuilt(new Entity(_game)), game(_game) {}
 
-EnemyBuilder::EnemyBuilder(const EnemyBuilder& other) : game(other.game) {if(other.beingBuilt) this->beingBuilt=new Entity(*other.beingBuilt); else this->beingBuilt=nullptr;}
+EnemyBuilder::EnemyBuilder(const EnemyBuilder& other) : game(other.game) {if(other.beingBuilt) this->beingBuilt=other.beingBuilt->clone(); else this->beingBuilt=nullptr;}
 
 EnemyBuilder::EnemyBuilder(EnemyBuilder&& other) noexcept : beingBuilt(other.beingBuilt), game(other.game) {other.beingBuilt=nullptr;}
 
@@ -12,57 +12,24 @@ EnemyBuilder& EnemyBuilder::operator=(const EnemyBuilder& other)
     if(this==&other)
         return *this;
     this->game=other.game;
+    delete this->beingBuilt;
     if(!other.beingBuilt)
-    {
-        if(this->beingBuilt)
-        {
-            delete this->beingBuilt;
-            this->beingBuilt=nullptr;
-        }
-    }
+        this->beingBuilt=nullptr;
     else
-    {
-        if(this->beingBuilt)
-        {
-            delete this->beingBuilt;
-            this->beingBuilt=nullptr;
-        }
         this->beingBuilt=other.beingBuilt->clone();
-    }
     return *this;
 }
 
 EnemyBuilder& EnemyBuilder::operator=(EnemyBuilder&& other) noexcept
 {
     this->game=other.game;
-    if(!other.beingBuilt)
-    {
-        if(this->beingBuilt)
-        {
-            delete this->beingBuilt;
-            this->beingBuilt=nullptr;
-        }
-    }
-    else
-    {
-        if(this->beingBuilt)
-        {
-            delete this->beingBuilt;
-            this->beingBuilt=nullptr;
-        }
-        this->beingBuilt=other.beingBuilt->clone();
-    }
+    delete this->beingBuilt;
+    this->beingBuilt=other.beingBuilt;
+    other.beingBuilt=nullptr;
     return *this;
 }
 
-EnemyBuilder::~EnemyBuilder()
-{
-    if(this->beingBuilt)
-    {
-        delete this->beingBuilt;
-        this->beingBuilt=nullptr;
-    }
-}
+EnemyBuilder::~EnemyBuilder() {delete this->beingBuilt;}
 
 void EnemyBuilder::checkMissing() {if(!this->beingBuilt) this->beingBuilt=new Entity(this->game);}
 

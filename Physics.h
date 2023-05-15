@@ -9,7 +9,7 @@ class Physics
 public:
     Physics() = delete;
 
-    static bool checkIntersection(Entity* A, Entity* B) {return (A->getCenter()-B->getCenter()).lengthSquared()<=(A->getRadius()+B->getRadius())*(A->getRadius()+B->getRadius());}
+    static bool checkIntersection(Entity* A, Entity* B);
 };
 
 #endif//PHYSICS_H

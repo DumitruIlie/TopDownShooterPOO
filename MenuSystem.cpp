@@ -13,7 +13,7 @@ void resumeGame() {MenuSystem::setMenu(GAMEPLAY);}
 void goToMainMenu() {MenuSystem::setMenu(MAINMENU);}
 void exitGame() {MenuSystem::setMenu(EXITGAME);}
 
-void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
+void drawPauseButton(const Button& btn, const bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
     vec2i topLeft=btn.getTopLeft();
@@ -42,7 +42,7 @@ void drawPauseButton(Button& btn, bool hover, sf::RenderWindow& window)
     rect.setPosition(sf::Vector2f((float)(topLeft+3*dim).get_x(), (float)(topLeft+dim).get_y()));
     window.draw(rect);
 }
-void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
+void drawResumeButton(const Button& btn, const bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
     vec2i topLeft=btn.getTopLeft();
@@ -69,7 +69,7 @@ void drawResumeButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(triangle);
 }
-void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
+void drawXButton(const Button& btn, const bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
     sf::ConvexShape line;
@@ -112,7 +112,7 @@ void drawXButton(Button& btn, bool hover, sf::RenderWindow& window)
 
     window.draw(line);
 }
-void drawReplayButton(Button& btn, bool hover, sf::RenderWindow& window)
+void drawReplayButton(const Button& btn, const bool hover, sf::RenderWindow& window)
 {
     sf::RectangleShape rect;
     vec2i topLeft=btn.getTopLeft();

@@ -2,14 +2,14 @@
 #include"Bullet.h"
 #include"AppException.h"
 
-Bullet::Bullet(float _damage, Game* _game, vec2f center, float radius) : Entity(_game, center, radius), damage(_damage)
+Bullet::Bullet(const float _damage, Game* const _game, const vec2f center, const float radius) : Entity(_game, center, radius), damage(_damage)
 {
     this->modifiables[SPEEDFACTOR]=5.5;
 }
 
 float Bullet::getDamage() const {return this->damage;}
 
-BeeBullet::BeeBullet(Entity*_target, float _damage, Game* _game, const vec2f center, const float radius) : Bullet(_damage, _game, center, radius), target(_target), lastHomingAction(0) {}
+BeeBullet::BeeBullet(Entity* const _target, const float _damage, Game* const _game, const vec2f center, const float radius) : Bullet(_damage, _game, center, radius), target(_target), lastHomingAction(0) {}
 
 void BeeBullet::tick(const float dt)
 {

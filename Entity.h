@@ -60,9 +60,7 @@ public:
 
     friend std::ostream& operator<<(std::ostream& out, const Entity& circle);
 
-    float getModifiable(MODIFIABLE modif) const;
-
-    float getDamage() const;
+    [[nodiscard]] float getModifiable(MODIFIABLE modif) const;
 
     virtual Entity* clone();
 };

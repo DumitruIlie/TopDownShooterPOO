@@ -20,15 +20,15 @@ private:
     long long last_frame;
     long long last_bullet;
 
-    virtual void gameLogic(sf::RenderWindow& window);
-    virtual void handleMovement();
-    virtual void handleShooting(sf::RenderWindow& window);
-    virtual void trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chancePerTick, sf::RenderWindow& window);
+    void gameLogic(const sf::RenderWindow& window);
+    void handleMovement();
+    void handleShooting(const sf::RenderWindow& window);
+    void trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chancePerTick, const sf::RenderWindow& window);
 
     Entity* spawnScout(vec2f spawnPos);
     Entity* spawnHeavy(vec2f spawnPos);
 
-    virtual void restart(sf::RenderWindow& window);
+    void restart(const sf::RenderWindow& window);
 
     int score;
 
@@ -40,16 +40,16 @@ public:
     Game();
     Game(const Game& other) = delete;
     Game& operator=(const Game& other) = delete;
-    virtual ~Game();
+    ~Game();
 
-    virtual void eventHandler(sf::RenderWindow& window);
-    virtual void tick(sf::RenderWindow& window);
-    virtual void render(sf::RenderWindow& window);
+    void eventHandler(sf::RenderWindow& window);
+    void tick(sf::RenderWindow& window);
+    void render(sf::RenderWindow& window);
 
-    Entity& getPlayer();
-    Entity* getClosestEnemy(vec2f pos);
+    [[nodiscard]] Entity& getPlayer() const;
+    [[nodiscard]] Entity* getClosestEnemy(vec2f pos) const;
 
-    bool isEnemyAlive(const Entity* const enemy);
+    bool isEnemyAlive(const Entity* enemy) const;
 };
 
 #endif//GAME_H

@@ -9,23 +9,25 @@ class Button
 {
 private:
     void (*onClick)();
-    void (*drawFnc)(Button&, bool, sf::RenderWindow&);
+    void (*drawFnc)(const Button&, bool, sf::RenderWindow&);
 
 protected:
     vec2i topLeft, bottomRight;
 
 public:
-    Button() : onClick(nullptr), drawFnc(nullptr), topLeft(0, 0), bottomRight(0, 0) {}
-    Button(vec2i _topLeft, vec2i _bottomRight) : onClick(nullptr), drawFnc(nullptr), topLeft(_topLeft), bottomRight(_bottomRight) {}
-    Button(vec2i _topLeft, vec2i _bottomRight, void (*_onClick)(), void (*_drawFnc)(Button&, bool, sf::RenderWindow&)) : onClick(_onClick), drawFnc(_drawFnc), topLeft(_topLeft), bottomRight(_bottomRight) {}
+    Button();
+    Button(vec2i _topLeft, vec2i _bottomRight);
+    Button(vec2i _topLeft, vec2i _bottomRight, void (*_onClick)(), void (*_drawFnc)(const Button&, bool, sf::RenderWindow&));
     Button(const Button& other) = default;
+    Button(Button&& other) = default;
     ~Button() = default;
     Button& operator=(const Button& other) = default;
+    Button& operator=(Button&& other) = default;
 
-    void click(vec2i mousePos);
+    void click(vec2i mousePos) const;
     void draw(sf::RenderWindow& window);
-    [[nodiscard]] vec2i getTopLeft() {return this->topLeft;}
-    [[nodiscard]] vec2i getBottomRight() {return this->bottomRight;}
+    [[nodiscard]] vec2i getTopLeft() const;
+    [[nodiscard]] vec2i getBottomRight() const;
 };
 
 #endif//BUTTON_H
