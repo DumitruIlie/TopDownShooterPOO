@@ -237,7 +237,7 @@ void Game::restart(const sf::RenderWindow& window)
     for(i=0;i<(int)this->bullets.size();++i)
     {
         PinballBullet* p;
-        if(p=dynamic_cast<PinballBullet*>(this->bullets[i]))
+        if((p=dynamic_cast<PinballBullet*>(this->bullets[i])))
             p->safeDestr();
         delete this->bullets[i];
     }
