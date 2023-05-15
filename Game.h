@@ -13,7 +13,7 @@ class Game
 private:
     float dt;
     Entity* player;
-    bool homingBullets;
+    int bulletType;
     std::vector<Entity*> enemies;
     std::vector<Entity*> bullets;
 
@@ -48,6 +48,8 @@ public:
 
     [[nodiscard]] Entity& getPlayer() const;
     [[nodiscard]] Entity* getClosestEnemy(vec2f pos) const;
+
+    void addBullet(Entity* const bullet);
 
     bool isEnemyAlive(const Entity* enemy) const;
 };

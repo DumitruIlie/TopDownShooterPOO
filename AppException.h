@@ -23,4 +23,10 @@ public:
     explicit MissingFontException(const std::string& mesaj);
 };
 
+class MaxPinballHits : public AppException
+{
+public:
+    MaxPinballHits();
+};
+
 #endif//APPEXCEPTION_H

@@ -1,13 +1,14 @@
 //Ilie Dumitru
 #include"Game.h"
 #include"Bullet.h"
+#include"PinballBullet.h"
 #include"MenuSystem.h"
 #include"Physics.h"
 #include"chrono"
 #include"AppException.h"
 #include"EnemyBuilder.h"
 
-Game::Game() : dt(1/32.f), player(new Entity(this, vec2f(), 10)), homingBullets(false), last_frame(std::chrono::system_clock::now().time_since_epoch().count()), last_bullet(std::chrono::system_clock::now().time_since_epoch().count()), score(0)
+Game::Game() : dt(1/32.f), player(new Entity(this, vec2f(), 10)), bulletType(0), last_frame(std::chrono::system_clock::now().time_since_epoch().count()), last_bullet(std::chrono::system_clock::now().time_since_epoch().count()), score(0)
 {
     this->player->setColor(sf::Color(0, 0, 255));
 }
@@ -67,9 +68,11 @@ void Game::eventHandler(sf::RenderWindow& window)
             case sf::Event::KeyPressed:
             {
                 if(e.key.code==sf::Keyboard::Z)
-                    this->homingBullets=false;
+                    this->bulletType=0;
                 if(e.key.code==sf::Keyboard::X)
-                    this->homingBullets=true;
+                    this->bulletType=1;
+                if(e.key.code==sf::Keyboard::C)
+                    this->bulletType=2;
                 break;
             }
             case sf::Event::MouseButtonPressed:
@@ -232,7 +235,12 @@ void Game::restart(const sf::RenderWindow& window)
     this->player->resetLife();
     this->player->setCenter(vec2f((float)window.getSize().x, (float)window.getSize().y)/2.f);
     for(i=0;i<(int)this->bullets.size();++i)
+    {
+        PinballBullet* p;
+        if(p=dynamic_cast<PinballBullet*>(this->bullets[i]))
+            p->safeDestr();
         delete this->bullets[i];
+    }
     for(i=0;i<(int)this->enemies.size();++i)
         delete this->enemies[i];
     this->bullets.clear();
@@ -252,10 +260,18 @@ void Game::handleShooting(const sf::RenderWindow& window)
     {
         this->last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
         Entity* bullet;
-        if(this->homingBullets)
-            bullet=new BeeBullet(nullptr, 25, this, this->player->getCenter(), 2);
-        else
-            bullet=new Bullet(50, this, this->player->getCenter(), 2);
+        switch(this->bulletType)
+        {
+            case 0:
+                bullet=new Bullet(50, this, this->player->getCenter(), 2);
+                break;
+            case 1:
+                bullet=new BeeBullet(nullptr, 25, this, this->player->getCenter(), 2);
+                break;
+            case 2:
+                bullet=new PinballBullet(35, this, this->player->getCenter(), 4);
+                break;
+        }
         sf::Vector2i mousePos=sf::Mouse::getPosition(window);
         vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player->getCenter());
         float len=vel.length();
@@ -278,6 +294,15 @@ bool Game::isEnemyAlive(const Entity* const enemy) const
         if(this->enemies[i]==enemy)
             return true;
     return false;
+}
+
+void Game::addBullet(Entity* const bullet)
+{
+    this->bullets.push_back(bullet);
+    if(this->bullets.size()>1u)
+    {
+        std::swap(this->bullets[this->bullets.size()-1], this->bullets[this->bullets.size()-2]);
+    }
 }
 
 Entity* Game::getClosestEnemy(const vec2f pos) const

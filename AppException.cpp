@@ -6,3 +6,5 @@ AppException::AppException(const std::string& mesaj) : std::runtime_error(mesaj)
 InvalidQuery::InvalidQuery(const std::string& mesaj) : AppException(mesaj) {}
 
 MissingFontException::MissingFontException(const std::string& mesaj) : AppException(mesaj) {}
+
+MaxPinballHits::MaxPinballHits() : AppException("") {}
