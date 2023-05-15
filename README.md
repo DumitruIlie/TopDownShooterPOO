@@ -6,4 +6,8 @@ Proiect tema 1 POO.
 
 WASD miscare.
 
-M1 pentru a trage.
+M1 pentru a trage si a apasa pe butoane.
+
+X pentru Homing Bullets.
+
+Z pentru Normal Bullets.

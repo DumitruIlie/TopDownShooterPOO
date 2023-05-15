@@ -95,7 +95,7 @@ void Game::render(sf::RenderWindow& window)
     static bool fontLoaded=false;
     if(!fontLoaded)
     {
-        if(!font.loadFromFile("resurse/arial.ttf"))
+        if(!font.loadFromFile("../resurse/arial.ttf"))
         {
             //throw std::runtime_error("Font could not be found, make sure it is in the right directory!\n");
             throw MissingFontException("Font could not be found where expected!\n");
