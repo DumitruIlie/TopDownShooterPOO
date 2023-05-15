@@ -13,14 +13,6 @@ PinballBullet::PinballBullet(const PinballBullet& other) : Bullet(other), state(
     this->setVelocity(vel);
 }
 
-PinballBullet::~PinballBullet()
-{
-    try
-    {
-        Entity* b=new PinballBullet(*this);
-        this->game->addBullet(b);
-    }
-    catch(MaxPinballHits& m) {}
-}
+PinballBullet::~PinballBullet() {try {Entity* b=new PinballBullet(*this); this->game->addBullet(b); }catch(MaxPinballHits& m) {}}
 
 void PinballBullet::safeDestr() {this->state=MAXHITS-1;}
