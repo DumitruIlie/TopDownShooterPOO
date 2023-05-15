@@ -259,7 +259,7 @@ void Game::handleShooting(const sf::RenderWindow& window)
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-this->last_bullet>=bullet_time_spawn)
     {
         this->last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
-        Entity* bullet;
+        Entity* bullet=nullptr;
         switch(this->bulletType)
         {
             case 0:
@@ -272,16 +272,19 @@ void Game::handleShooting(const sf::RenderWindow& window)
                 bullet=new PinballBullet(35, this, this->player->getCenter(), 4);
                 break;
         }
-        sf::Vector2i mousePos=sf::Mouse::getPosition(window);
-        vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player->getCenter());
-        float len=vel.length();
-        if(len<=1e-9)
-            vel=vec2f(0, 1);
-        else
-            vel/=len;
-        bullet->setVelocity(vel);
-        bullet->setColor(sf::Color(255,255,0));
-        this->bullets.push_back(bullet);
+        if(bullet)
+        {
+            sf::Vector2i mousePos=sf::Mouse::getPosition(window);
+            vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player->getCenter());
+            float len=vel.length();
+            if(len<=1e-9)
+                vel=vec2f(0, 1);
+            else
+                vel/=len;
+            bullet->setVelocity(vel);
+            bullet->setColor(sf::Color(255,255,0));
+            this->bullets.push_back(bullet);
+        }
     }
 }
 
