@@ -236,9 +236,8 @@ void Game::restart(const sf::RenderWindow& window)
     this->player->setCenter(vec2f((float)window.getSize().x, (float)window.getSize().y)/2.f);
     for(i=0;i<(int)this->bullets.size();++i)
     {
-        PinballBullet* p;
-        if((p=dynamic_cast<PinballBullet*>(this->bullets[i])))
-            p->safeDestr();
+        PinballBullet* p=dynamic_cast<PinballBullet*>(this->bullets[i]);
+        if(p) p->safeDestr();
         delete this->bullets[i];
     }
     for(i=0;i<(int)this->enemies.size();++i)
