@@ -8,23 +8,22 @@
 #include"AppException.h"
 #include"EnemyBuilder.h"
 
-Game::Game() : dt(1/32.f), player(new Entity(this, vec2f(), 10)), bulletType(0), last_frame(std::chrono::system_clock::now().time_since_epoch().count()), last_bullet(std::chrono::system_clock::now().time_since_epoch().count()), score(0)
+Game::Game() : dt(1/32.f), player(this, vec2f(), 10), bulletType(0), last_frame(std::chrono::system_clock::now().time_since_epoch().count()), last_bullet(std::chrono::system_clock::now().time_since_epoch().count()), score(0)
 {
-    this->player->setColor(sf::Color(0, 0, 255));
+    this->player.setColor(sf::Color(0, 0, 255));
 }
 
 Game::~Game()
 {
     int i;
 
-    delete this->player;
     for(i=0;i<(int)this->enemies.size();++i)
         delete this->enemies[i];
     for(i=0;i<(int)bullets.size();++i)
         delete bullets[i];
 }
 
-Entity& Game::getPlayer() const {return *this->player;}
+Humanoid& Game::getPlayer() {return this->player;}
 
 void Game::tick(sf::RenderWindow& window)
 {
@@ -42,11 +41,11 @@ void Game::tick(sf::RenderWindow& window)
             this->handleMovement();
             this->handleShooting(window);
 
-            this->trySpawnMonster(this->player->getCenter(), 50, 0.0025f, window);
+            this->trySpawnMonster(this->player.getCenter(), 50, 0.0025f, window);
 
             gameLogic(window);
 
-            player->tick(dt);
+            player.tick(dt);
             for(i=0;i<(int)this->enemies.size();++i)
                 this->enemies[i]->tick(dt);
             for(i=0;i<(int)this->bullets.size();++i)
@@ -110,7 +109,7 @@ void Game::render(sf::RenderWindow& window)
     {
         int i;
 
-        player->draw(window);
+        player.draw(window);
         for(i=0;i<(int)this->enemies.size();++i)
             this->enemies[i]->draw(window);
         for(i=0;i<(int)this->bullets.size();++i)
@@ -148,13 +147,13 @@ void Game::render(sf::RenderWindow& window)
     MenuSystem::render(window);
 }
 
-Entity* Game::spawnScout(const vec2f spawnPos)
+Humanoid* Game::spawnScout(const vec2f spawnPos)
 {
     EnemyBuilder builder(this);
     return builder.setPos(spawnPos).setMaxHealth(100, false).setSize(7).setColor(sf::Color(0, 255, 0)).applyPowerup(SpeedIncreasePowerup(1)).applyPowerup(DamageIncreasePowerup(-0.5f)).spawn();
 }
 
-Entity* Game::spawnHeavy(const vec2f spawnPos)
+Humanoid* Game::spawnHeavy(const vec2f spawnPos)
 {
     EnemyBuilder builder(this);
     return builder.setPos(spawnPos).setMaxHealth(300, false).setSize(15).setColor(sf::Color(255, 255, 0)).applyPowerup(SpeedIncreasePowerup(-0.25f)).applyPowerup(DamageIncreasePowerup(3)).spawn();
@@ -186,10 +185,10 @@ void Game::gameLogic(const sf::RenderWindow& window)
     int i, j;
     for(i=0;i<(int)this->enemies.size();++i)
     {
-        if(Physics::checkIntersection(this->player, this->enemies[i]))
+        if(Physics::checkIntersection(&this->player, this->enemies[i]))
         {
             const float BASEDAMAGE=5;
-            if(this->player->takeDamage(this->enemies[i]->getModifiable(DAMAGEFACTOR)*BASEDAMAGE)<=0)
+            if(this->player.takeDamage(this->enemies[i]->getModifiable(DAMAGEFACTOR)*BASEDAMAGE)<=0)
             {
                 MenuSystem::setMenu(GAMEOVER);
                 this->restart(window);
@@ -197,7 +196,7 @@ void Game::gameLogic(const sf::RenderWindow& window)
             }
         }
         else
-            this->enemies[i]->setVelocity((this->player->getCenter()-this->enemies[i]->getCenter()).normalize());
+            this->enemies[i]->setVelocity((this->player.getCenter()-this->enemies[i]->getCenter()).normalize());
 
         for(j=0;j<(int)this->bullets.size();++j)
         {
@@ -215,7 +214,7 @@ void Game::gameLogic(const sf::RenderWindow& window)
 
                     //Testing code
                     HealthIncreasePowerup hp_inc(5);
-                    hp_inc.affectEntity(this->player);
+                    hp_inc.affectEntity(&this->player);
                 }
                 std::swap(this->bullets[j], this->bullets[(int)this->bullets.size()-1]);
                 delete this->bullets[(int)this->bullets.size()-1];
@@ -231,14 +230,13 @@ void Game::restart(const sf::RenderWindow& window)
     int i;
 
     this->score=0;
-    this->player->setVelocity(vec2f());
-    this->player->resetLife();
-    this->player->setCenter(vec2f((float)window.getSize().x, (float)window.getSize().y)/2.f);
-    for(i=0;i<(int)this->bullets.size();++i)
+    this->player.setVelocity(vec2f());
+    this->player.resetLife();
+    this->player.setCenter(vec2f((float)window.getSize().x, (float)window.getSize().y)/2.f);
+    while(!this->bullets.empty())
     {
-        PinballBullet* p=dynamic_cast<PinballBullet*>(this->bullets[i]);
-        if(p) p->safeDestr();
-        delete this->bullets[i];
+        delete this->bullets.back();
+        this->bullets.resize(this->bullets.size()-1);
     }
     for(i=0;i<(int)this->enemies.size();++i)
         delete this->enemies[i];
@@ -248,7 +246,7 @@ void Game::restart(const sf::RenderWindow& window)
 
 void Game::handleMovement()
 {
-    this->player->setVelocity(vec2f((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),
+    this->player.setVelocity(vec2f((float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)),
                                              -(float)(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)-sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)))
                                              .normalize()*=4);
 }
@@ -258,23 +256,23 @@ void Game::handleShooting(const sf::RenderWindow& window)
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-this->last_bullet>=bullet_time_spawn)
     {
         this->last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
-        Entity* bullet=nullptr;
+        Bullet* bullet=nullptr;
         switch(this->bulletType)
         {
             case 0:
-                bullet=new Bullet(50, this, this->player->getCenter(), 2);
+                bullet=new Bullet(50, this, this->player.getCenter(), 2);
                 break;
             case 1:
-                bullet=new BeeBullet(nullptr, 25, this, this->player->getCenter(), 2);
+                bullet=new BeeBullet(nullptr, 25, this, this->player.getCenter(), 2);
                 break;
             case 2:
-                bullet=new PinballBullet(35, this, this->player->getCenter(), 4);
+                bullet=new PinballBullet(35, this, this->player.getCenter(), 4);
                 break;
         }
         if(bullet)
         {
             sf::Vector2i mousePos=sf::Mouse::getPosition(window);
-            vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player->getCenter());
+            vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player.getCenter());
             float len=vel.length();
             if(len<=1e-9)
                 vel=vec2f(0, 1);
@@ -287,18 +285,16 @@ void Game::handleShooting(const sf::RenderWindow& window)
     }
 }
 
-bool Game::isEnemyAlive(const Entity* const enemy) const
+bool Game::isEnemyAlive(const Humanoid& enemy) const
 {
-    if(!enemy)
-        return false;
     int i;
     for(i=0;i<(int)this->enemies.size();++i)
-        if(this->enemies[i]==enemy)
+        if(this->enemies[i]==&enemy)
             return true;
     return false;
 }
 
-void Game::addBullet(Entity* const bullet)
+void Game::addBullet(Bullet* const bullet)
 {
     this->bullets.push_back(bullet);
     if(this->bullets.size()>1u)
@@ -307,7 +303,7 @@ void Game::addBullet(Entity* const bullet)
     }
 }
 
-Entity* Game::getClosestEnemy(const vec2f pos) const
+Humanoid& Game::getClosestEnemy(const vec2f pos) const
 {
     if((int)this->enemies.size()==0)
         throw InvalidQuery("");
@@ -322,5 +318,5 @@ Entity* Game::getClosestEnemy(const vec2f pos) const
             min=i;
         }
     }
-    return this->enemies[min];
+    return *this->enemies[min];
 }

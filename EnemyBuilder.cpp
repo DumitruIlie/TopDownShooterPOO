@@ -1,9 +1,9 @@
 //Ilie Dumitru
 #include"EnemyBuilder.h"
 
-EnemyBuilder::EnemyBuilder(Game* _game) : beingBuilt(new Entity(_game)), game(_game) {}
+EnemyBuilder::EnemyBuilder(Game* _game) : beingBuilt(new Humanoid(_game)), game(_game) {}
 
-EnemyBuilder::EnemyBuilder(const EnemyBuilder& other) : game(other.game) {if(other.beingBuilt) this->beingBuilt=other.beingBuilt->clone(); else this->beingBuilt=nullptr;}
+EnemyBuilder::EnemyBuilder(const EnemyBuilder& other) : game(other.game) {if(other.beingBuilt) this->beingBuilt=dynamic_cast<Humanoid*>(other.beingBuilt->clone()); else this->beingBuilt=nullptr;}
 
 EnemyBuilder::EnemyBuilder(EnemyBuilder&& other) noexcept : beingBuilt(other.beingBuilt), game(other.game) {other.beingBuilt=nullptr;}
 
@@ -16,7 +16,7 @@ EnemyBuilder& EnemyBuilder::operator=(const EnemyBuilder& other)
     if(!other.beingBuilt)
         this->beingBuilt=nullptr;
     else
-        this->beingBuilt=other.beingBuilt->clone();
+        this->beingBuilt=dynamic_cast<Humanoid*>(other.beingBuilt->clone());
     return *this;
 }
 
@@ -31,7 +31,7 @@ EnemyBuilder& EnemyBuilder::operator=(EnemyBuilder&& other) noexcept
 
 EnemyBuilder::~EnemyBuilder() {delete this->beingBuilt;}
 
-void EnemyBuilder::checkMissing() {if(!this->beingBuilt) this->beingBuilt=new Entity(this->game);}
+void EnemyBuilder::checkMissing() {if(!this->beingBuilt) this->beingBuilt=new Humanoid(this->game);}
 
 EnemyBuilder& EnemyBuilder::setPos(const vec2f pos) {this->checkMissing(); this->beingBuilt->setCenter(pos); return *this;}
 
@@ -47,4 +47,4 @@ EnemyBuilder& EnemyBuilder::setColor(const sf::Color col) {this->checkMissing();
 
 EnemyBuilder& EnemyBuilder::applyPowerup(const Powerup& powerup) {this->checkMissing(); powerup.affectEntity(this->beingBuilt); return *this;}
 
-Entity* EnemyBuilder::spawn() {this->checkMissing(); Entity* enemy=this->beingBuilt; this->beingBuilt=nullptr; return enemy;}
+Humanoid* EnemyBuilder::spawn() {this->checkMissing(); Humanoid* enemy=this->beingBuilt; this->beingBuilt=nullptr; return enemy;}

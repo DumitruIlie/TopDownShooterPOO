@@ -4,16 +4,15 @@
 
 enum MODIFIABLE{SPEEDFACTOR, DAMAGEFACTOR, HEALTH, CNTMODIFIABLES};
 
+class Game;
+
 #include"vec2.h"
-#include"Game.h"
 #include"Powerup.h"
 #include<SFML/Graphics.hpp>
 
-class Game;
-
 class Entity
 {
-private:
+public:
     vec2f center;
     float radius;
     vec2f velocity;
@@ -21,19 +20,15 @@ private:
     float MAX_HP;
     sf::Color color;
 
+private:
     long long lastDamageTaken;
 
 protected:
     Game* game;
     float modifiables[CNTMODIFIABLES];
-
-private:
     bool overhealable;
 
 public:
-    friend class Powerup;
-    friend class EnemyBuilder;
-
     explicit Entity(Game* _game, vec2f center=vec2f(), float radius=1, float MAXHP=100, bool overhealable=true);
     Entity(const Entity& other) = default;
     virtual ~Entity() = default;
@@ -63,6 +58,8 @@ public:
     [[nodiscard]] float getModifiable(MODIFIABLE modif) const;
 
     virtual Entity* clone();
+
+    void setModifiable(MODIFIABLE modif, bool isAdditive, float value);
 };
 
 #endif//ENTITY_H

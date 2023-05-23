@@ -3,6 +3,7 @@
 #define BULLET_H
 
 #include"Entity.h"
+#include"Humanoid.h"
 
 class Bullet : public Entity
 {
@@ -19,13 +20,13 @@ public:
 class BeeBullet : public Bullet
 {
 private:
-    Entity* target;
+    Humanoid* target;
     int lastHomingAction;
 
 public:
     const float HOMINGFACTOR=0.1f;
     const int HOMINGWAITFRAMECOUNT=200;
-    BeeBullet(Entity* _target, float _damage, Game* _game, vec2f center=vec2f(), float radius=2);
+    BeeBullet(Humanoid* _target, float _damage, Game* _game, vec2f center=vec2f(), float radius=2);
 
     void tick(float dt) override;
 };

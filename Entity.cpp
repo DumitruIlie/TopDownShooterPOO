@@ -1,5 +1,6 @@
 //Ilie Dumitru
 #include"Entity.h"
+#include"Game.h"
 #include<chrono>
 
 Entity::Entity(Game*_game, const vec2f center, const float radius, const float MAXHP, const bool _overhealable) : center(center), radius(radius), velocity(), hp(MAXHP), MAX_HP(MAXHP*(1+0.5f*(float)_overhealable)), lastDamageTaken(0), game(_game), modifiables(), overhealable(_overhealable)
@@ -55,3 +56,11 @@ std::ostream& operator<<(std::ostream& out, const Entity& circle) {return out<<'
 float Entity::getModifiable(const MODIFIABLE modif) const {return this->modifiables[modif];}
 
 Entity* Entity::clone() {return new Entity(*this);}
+
+void Entity::setModifiable(const MODIFIABLE modif, const bool isAditive, const float val)
+{
+    if(isAditive)
+        this->modifiables[modif]+=val;
+    else
+        this->modifiables[modif]*=val;
+}

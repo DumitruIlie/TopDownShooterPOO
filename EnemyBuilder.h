@@ -2,13 +2,13 @@
 #ifndef ENEMYBUILDER_H
 #define ENEMYBUILDER_H
 
-#include"Entity.h"
+#include"Humanoid.h"
 #include<SFML/Graphics.hpp>
 
 class EnemyBuilder
 {
 private:
-    Entity* beingBuilt;
+    Humanoid* beingBuilt;
     Game* game;
 
 protected:
@@ -30,7 +30,7 @@ public:
     //EnemyBuilder& setGame(Game* _game);
     EnemyBuilder& applyPowerup(const Powerup& powerup);
 
-    Entity* spawn();
+    Humanoid* spawn();
 };
 
 #endif//ENEMYBUILDER_H

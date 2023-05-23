@@ -2,20 +2,19 @@
 #ifndef GAME_H
 #define GAME_H
 
-class Entity;
-
 #include<SFML/Graphics.hpp>
 #include<vector>
-#include"Entity.h"
+#include"Bullet.h"
+#include"Humanoid.h"
 
 class Game
 {
 private:
     float dt;
-    Entity* player;
+    Humanoid player;
     int bulletType;
-    std::vector<Entity*> enemies;
-    std::vector<Entity*> bullets;
+    std::vector<Humanoid*> enemies;
+    std::vector<Bullet*> bullets;
 
     long long last_frame;
     long long last_bullet;
@@ -25,8 +24,8 @@ private:
     void handleShooting(const sf::RenderWindow& window);
     void trySpawnMonster(vec2f restrictedAreaCenter, float restrictedAreaRadius, float chancePerTick, const sf::RenderWindow& window);
 
-    Entity* spawnScout(vec2f spawnPos);
-    Entity* spawnHeavy(vec2f spawnPos);
+    Humanoid* spawnScout(vec2f spawnPos);
+    Humanoid* spawnHeavy(vec2f spawnPos);
 
     void restart(const sf::RenderWindow& window);
 
@@ -46,12 +45,12 @@ public:
     void tick(sf::RenderWindow& window);
     void render(sf::RenderWindow& window);
 
-    [[nodiscard]] Entity& getPlayer() const;
-    [[nodiscard]] Entity* getClosestEnemy(vec2f pos) const;
+    [[nodiscard]] Humanoid& getPlayer();
+    [[nodiscard]] Humanoid& getClosestEnemy(vec2f pos) const;
 
-    void addBullet(Entity* const bullet);
+    void addBullet(Bullet* bullet);
 
-    bool isEnemyAlive(const Entity* enemy) const;
+    [[nodiscard]] bool isEnemyAlive(const Humanoid& enemy) const;
 };
 
 #endif//GAME_H
