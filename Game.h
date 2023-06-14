@@ -26,6 +26,7 @@ private:
 
     Humanoid* spawnScout(vec2f spawnPos);
     Humanoid* spawnHeavy(vec2f spawnPos);
+    Humanoid* spawnNormal(vec2f spawnPos);
 
     void restart(const sf::RenderWindow& window);
 

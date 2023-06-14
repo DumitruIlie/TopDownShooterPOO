@@ -1,5 +1,6 @@
 //Ilie Dumitru
 #include"MenuSystem.h"
+#include"Observer.h"
 
 MENU MenuSystem::menu=MAINMENU;
 std::vector<Button*> MenuSystem::buttons[MENUCNT]={};
@@ -9,7 +10,7 @@ const int XSPLITFACTOR=8;
 const int PAUSESPLITFACTOR=5;
 
 void pauseGame() {MenuSystem::setMenu(PAUSEMENU);}
-void resumeGame() {MenuSystem::setMenu(GAMEPLAY);}
+void resumeGame() {MenuSystem::setMenu(GAMEPLAY); Observer::getInstance().update(RESPAWN_PLAYER);}
 void goToMainMenu() {MenuSystem::setMenu(MAINMENU);}
 void exitGame() {MenuSystem::setMenu(EXITGAME);}
 

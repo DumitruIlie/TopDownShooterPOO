@@ -7,6 +7,7 @@
 #include"chrono"
 #include"AppException.h"
 #include"EnemyBuilder.h"
+#include"Observer.h"
 
 Game::Game() : dt(1/32.f), player(this, vec2f(), 10), bulletType(0), last_frame(std::chrono::system_clock::now().time_since_epoch().count()), last_bullet(std::chrono::system_clock::now().time_since_epoch().count()), score(0)
 {
@@ -27,6 +28,7 @@ Humanoid& Game::getPlayer() {return this->player;}
 
 void Game::tick(sf::RenderWindow& window)
 {
+    Observer::getInstance().update(UPDATE_TIME);
     long long currFrame=std::chrono::system_clock::now().time_since_epoch().count();
     if(currFrame-this->last_frame>=frame_time)
     {
@@ -147,16 +149,27 @@ void Game::render(sf::RenderWindow& window)
     MenuSystem::render(window);
 }
 
+const sf::Color SCOUT_COLOR=sf::Color(0, 255, 0);
+const sf::Color HEAVY_COLOR=sf::Color(255, 255, 0);
+const sf::Color NORMAL_COLOR=sf::Color(255, 0, 0);
+
 Humanoid* Game::spawnScout(const vec2f spawnPos)
 {
+    Observer::getInstance().update(SPAWN_SCOUT);
     EnemyBuilder builder(this);
-    return builder.setPos(spawnPos).setMaxHealth(100, false).setSize(7).setColor(sf::Color(0, 255, 0)).applyPowerup(SpeedIncreasePowerup(1)).applyPowerup(DamageIncreasePowerup(-0.5f)).spawn();
+    return builder.setPos(spawnPos).setMaxHealth(100, false).setSize(7).setColor(SCOUT_COLOR).applyPowerup(SpeedIncreasePowerup(1)).applyPowerup(DamageIncreasePowerup(-0.5f)).spawn();
 }
 
 Humanoid* Game::spawnHeavy(const vec2f spawnPos)
 {
     EnemyBuilder builder(this);
-    return builder.setPos(spawnPos).setMaxHealth(300, false).setSize(15).setColor(sf::Color(255, 255, 0)).applyPowerup(SpeedIncreasePowerup(-0.25f)).applyPowerup(DamageIncreasePowerup(3)).spawn();
+    return builder.setPos(spawnPos).setMaxHealth(300, false).setSize(15).setColor(HEAVY_COLOR).applyPowerup(SpeedIncreasePowerup(-0.25f)).applyPowerup(DamageIncreasePowerup(3)).spawn();
+}
+
+Humanoid* Game::spawnNormal(const vec2f spawnPos)
+{
+    EnemyBuilder builder(this);
+    return builder.setPos(spawnPos).setMaxHealth(150, false).setSize(9).setColor(NORMAL_COLOR).spawn();
 }
 
 void Game::trySpawnMonster(const vec2f restrictedAreaCenter, const float restrictedAreaRadius, const float chance, const sf::RenderWindow& window)
@@ -173,10 +186,7 @@ void Game::trySpawnMonster(const vec2f restrictedAreaCenter, const float restric
         else if(typeSpawn<0.222)
             this->enemies.push_back(spawnHeavy(pos));
         else
-        {
-            EnemyBuilder builder(this);
-            this->enemies.push_back(builder.setColor(sf::Color(255,0,0)).setSize(9).setPos(pos).setMaxHealth(150, false).spawn());
-        }
+            this->enemies.push_back(spawnNormal(pos));
     }
 }
 
@@ -205,6 +215,29 @@ void Game::gameLogic(const sf::RenderWindow& window)
                 int next_j=j-1;
                 if(this->enemies[i]->takeDamage(dynamic_cast<Bullet*>(bullets[j])->getDamage())<=0)
                 {
+                    if(this->enemies[i]->color==SCOUT_COLOR)
+                    {
+                        Observer::getInstance().update(KILL_SCOUT);
+                        if(dynamic_cast<PinballBullet*>(this->bullets[j]))
+                        {
+                            Observer::getInstance().update(PINBALL_SCOUT_KILL);
+                        }
+                    }
+                    else if(this->enemies[i]->color==HEAVY_COLOR)
+                    {
+                        if(dynamic_cast<BeeBullet*>(this->bullets[j]))
+                        {
+                            Observer::getInstance().update(BEE_HEAVY_KILL);
+                        }
+                    }
+                    else if(this->enemies[i]->color==NORMAL_COLOR)
+                    {
+                        if(!dynamic_cast<BeeBullet*>(this->bullets[j]) && !dynamic_cast<PinballBullet*>(this->bullets[j]))
+                        {
+                            Observer::getInstance().update(BULLET_NORMAL_KILL);
+                        }
+                    }
+
                     std::swap(this->enemies[i], this->enemies[(int)this->enemies.size()-1]);
                     delete this->enemies[(int)this->enemies.size()-1];
                     this->enemies.pop_back();
@@ -212,10 +245,13 @@ void Game::gameLogic(const sf::RenderWindow& window)
                     next_j=(int)bullets.size();
                     ++this->score;
 
-                    //Testing code
                     HealthIncreasePowerup hp_inc(5);
                     hp_inc.affectEntity(&this->player);
                 }
+
+                if(dynamic_cast<BeeBullet*>(this->bullets[j]))
+                    Observer::getInstance().update(BEE_HIT);
+
                 std::swap(this->bullets[j], this->bullets[(int)this->bullets.size()-1]);
                 delete this->bullets[(int)this->bullets.size()-1];
                 this->bullets.pop_back();
@@ -228,6 +264,8 @@ void Game::gameLogic(const sf::RenderWindow& window)
 void Game::restart(const sf::RenderWindow& window)
 {
     int i;
+
+    Observer::getInstance().update(RESPAWN_PLAYER);
 
     this->score=0;
     this->player.setVelocity(vec2f());
@@ -253,35 +291,42 @@ void Game::handleMovement()
 
 void Game::handleShooting(const sf::RenderWindow& window)
 {
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && std::chrono::system_clock::now().time_since_epoch().count()-this->last_bullet>=bullet_time_spawn)
+    if(std::chrono::system_clock::now().time_since_epoch().count()-this->last_bullet>=bullet_time_spawn)
     {
         this->last_bullet=std::chrono::system_clock::now().time_since_epoch().count();
-        Bullet* bullet=nullptr;
-        switch(this->bulletType)
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            case 0:
-                bullet=new Bullet(50, this, this->player.getCenter(), 2);
-                break;
-            case 1:
-                bullet=new BeeBullet(nullptr, 25, this, this->player.getCenter(), 2);
-                break;
-            case 2:
-                bullet=new PinballBullet(35, this, this->player.getCenter(), 4);
-                break;
+            Bullet* bullet=nullptr;
+            switch(this->bulletType)
+            {
+                case 0:
+                    Observer::getInstance().update(FIRE_NORMAL_BULLET);
+                    bullet=new Bullet(50, this, this->player.getCenter(), 2);
+                    break;
+                case 1:
+                    Observer::getInstance().update(FIRE_BEE);
+                    bullet=new BeeBullet(nullptr, 25, this, this->player.getCenter(), 2);
+                    break;
+                case 2:
+                    bullet=new PinballBullet(35, this, this->player.getCenter(), 4);
+                    break;
+            }
+            if(bullet)
+            {
+                sf::Vector2i mousePos=sf::Mouse::getPosition(window);
+                vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player.getCenter());
+                float len=vel.length();
+                if(len<=1e-9)
+                    vel=vec2f(0, 1);
+                else
+                    vel/=len;
+                bullet->setVelocity(vel);
+                bullet->setColor(sf::Color(255,255,0));
+                this->bullets.push_back(bullet);
+            }
         }
-        if(bullet)
-        {
-            sf::Vector2i mousePos=sf::Mouse::getPosition(window);
-            vec2f vel=(vec2f((float)mousePos.x,(float)mousePos.y)-this->player.getCenter());
-            float len=vel.length();
-            if(len<=1e-9)
-                vel=vec2f(0, 1);
-            else
-                vel/=len;
-            bullet->setVelocity(vel);
-            bullet->setColor(sf::Color(255,255,0));
-            this->bullets.push_back(bullet);
-        }
+        else
+            Observer::getInstance().update(STOP_FIRE);
     }
 }
 
