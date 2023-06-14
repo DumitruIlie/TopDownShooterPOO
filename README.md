@@ -1,6 +1,6 @@
 # Top down shooter
 
-Proiect tema 2 POO.
+Proiect tema 3 POO.
 
 ## Controale
 
@@ -13,3 +13,7 @@ C pentru Pinball Bullets.
 X pentru Homing Bullets.
 
 Z pentru Normal Bullets.
+
+## Achievements
+
+9 achievementuri pe care le poti obtine.
